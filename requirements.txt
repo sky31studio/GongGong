@@ -1,1 +1,2 @@
 fastapi~=0.112.2
+ddddocr~=1.5.5
