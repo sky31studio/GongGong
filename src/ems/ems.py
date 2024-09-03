@@ -38,7 +38,7 @@ class ZQEducationalManageSystem(EducationalManageSystem):
     """
     智强教务系统
     """
-    _SESSION_NAME = "JSESSIONID"
+    SESSION_NAME = "JSESSIONID"
 
     def __init__(self) -> None:
         super().__init__()
@@ -47,7 +47,7 @@ class ZQEducationalManageSystem(EducationalManageSystem):
     def login(self, account: AuthenticationAccount) -> Session:
         with requests.session() as ems_session:
             resp = ems_session.get(XTUEMSConfig.XTU_EMS_CAPTCHA_URL)
-            session_id = resp.cookies.get(ZQEducationalManageSystem._SESSION_NAME)
+            session_id = resp.cookies.get(ZQEducationalManageSystem.SESSION_NAME)
             session = Session(session_id=session_id)
             captcha = self.captcha.verify(resp.content)
             resp = ems_session.post(XTUEMSConfig.XTU_EMS_SIG_URL)

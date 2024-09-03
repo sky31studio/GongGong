@@ -13,3 +13,5 @@ class XTUEMSConfig(metaclass=BaseConfig):
     """湘潭大学教务系统-登陆签名地址"""
     XTU_EMS_CAPTCHA_URL: str = XTU_EMS_BASE_URL + "/verifycode.servlet"
     """湘潭大学教务系统-验证码地址"""
+    XTU_EMS_STUDENT_INFO_URL: str = XTU_EMS_BASE_URL + "/grxx/xsxx"
+    """湘潭大学教务系统-学生信息地址"""
