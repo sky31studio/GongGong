@@ -1,14 +1,12 @@
-import requests
 from bs4 import BeautifulSoup
 
 from ems.config import XTUEMSConfig
-from ems.ems import ZQEducationalManageSystem
 from ems.handler import Handler
 from ems.session import Session
 from ems.student_info import StudentBasicInfo
 
 
-class StudentInfoHandler(Handler):
+class StudentInfoGetrrer(Handler):
     """获取学生信息"""
 
     def __init__(self):
@@ -16,8 +14,7 @@ class StudentInfoHandler(Handler):
 
     def handler(self, session: Session, *args, **kwargs):
         """获取学生信息"""
-        with requests.session() as ems_session:
-            ems_session.cookies.set(ZQEducationalManageSystem.SESSION_NAME, session.session_id)
+        with self._get_session(session) as ems_session:
             resp = ems_session.get(XTUEMSConfig.XTU_EMS_STUDENT_INFO_URL)
             # 提取resp中的表格信息，并且解析出学生的基本信息
             soup = BeautifulSoup(resp.text, 'html.parser')

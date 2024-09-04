@@ -13,7 +13,7 @@ class TestStudentInfoHandler(TestCase):
                                         password=password)
         ems = ZQEducationalManageSystem()
         session = ems.login(account)
-        from ems.handler.get_student_info import StudentInfoHandler
-        handler = StudentInfoHandler()
+        from ems.handler.get_student_info import StudentInfoGetrrer
+        handler = StudentInfoGetrrer()
         resp = handler.handler(session)
         self.assertIsNotNone(resp)
