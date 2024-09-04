@@ -32,4 +32,8 @@ class EMSGetter(Handler):
 
     @abstractmethod
     def _extra_info(self, soup: BeautifulSoup):
+        table = soup.find_all('table')[-1]
+        return self._extra_courses(table)
+
+    def _extra_courses(self, table):
         pass

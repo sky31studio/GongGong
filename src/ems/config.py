@@ -20,5 +20,5 @@ class XTUEMSConfig(metaclass=BaseConfig):
     XTU_EMS_STUDENT_INFO_URL: str = XTU_EMS_BASE_URL + "/grxx/xsxx"
     """湘潭大学教务系统-学生信息地址"""
 
-    XTU_EMS_STUDENT_SCORE_URL: str = XTU_EMS_BASE_URL + "/xskb/xskb_list.do"
+    XTU_EMS_STUDENT_COURSE_URL: str = XTU_EMS_BASE_URL + "/xskb/xskb_list.do"
     """湘潭大学教务系统-学生课表地址"""

@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 
 from ems.config import XTUEMSConfig
 from ems.handler import EMSGetter
-from ems.student_info import StudentBasicInfo
+from ems.model import StudentBasicInfo
 
 
 def _extra_student_info(soup: BeautifulSoup) -> StudentBasicInfo:
