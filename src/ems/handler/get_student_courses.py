@@ -38,9 +38,7 @@ class StudentCourseGetter(EMSGetter):
         course = CourseInfo(name=course_name, teacher=teacher.text, weeks=weeks.text.split('(')[0],
                             classroom=classroom.text)
         next_c = classroom.find_next_sibling(string='---------------------')
-        if next_c:
-            # 如果还有同一天的课程
-            next_course_name = next_c.next.next.text
-            return [course, self._extra_courses(next_c, course_name=next_course_name)]
-        else:
-            return [course]
+        ret = [course]
+        if next_c is not None:
+            ret += self._extra_courses(next_c, course_name)
+        return ret
