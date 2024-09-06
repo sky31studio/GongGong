@@ -67,3 +67,40 @@ class CourseInfo(BaseModel):
                 return True
         else:
             return False
+
+
+def _get_day_name(day: int):
+    """
+    获取星期几的课程表
+    Args:
+        day: 星期几
+
+    Returns:
+        返回星期几的课程表
+    """
+    return [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday'][day]
+
+
+class CourseTable(BaseModel):
+    """课程表数据结构"""
+    Sunday: list[list[CourseInfo]] = []
+    Monday: list[list[CourseInfo]] = []
+    Tuesday: list[list[CourseInfo]] = []
+    Wednesday: list[list[CourseInfo]] = []
+    Thursday: list[list[CourseInfo]] = []
+    Friday: list[list[CourseInfo]] = []
+    Saturday: list[list[CourseInfo]] = []
+
+    def __getitem__(self, item):
+        # 判断item是否是一个int，如果为int，则返回相应的课程表
+        if isinstance(item, int):
+            return self.__getattribute__(_get_day_name(item))
+        # 如果不是int，则返回相应的课程表
+        return self.__getattribute__(item)
