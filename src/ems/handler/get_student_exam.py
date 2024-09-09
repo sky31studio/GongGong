@@ -1,24 +1,17 @@
 from bs4 import BeautifulSoup
 
 from ems.config import XTUEMSConfig
-from ems.handler import Handler
+from ems.handler import EMSPoster
 from ems.model import ExamInfo
-from ems.session import Session
-
-_data = {
-    "xnxqid": XTUEMSConfig.XTU_EMS_CURRENT_TIME
-}
 
 
-class StudentExamGetter(Handler):
+class StudentExamGetter(EMSPoster):
     """获取学生考试信息"""
 
-    def handler(self, session: Session, *args, **kwargs):
-        """获取学生考试信息"""
-        with self._get_session(session) as ems_session:
-            resp = ems_session.post(self.url(), data=_data)
-            soup = BeautifulSoup(resp.text, 'html.parser')
-            return self._extra_info(soup)
+    def _data(self):
+        return {
+            "xnxqid": XTUEMSConfig.XTU_EMS_CURRENT_TIME
+        }
 
     def _extra_info(self, soup: BeautifulSoup):
         exam_list = soup.find(id="dataList").find_all('tr')[1:]

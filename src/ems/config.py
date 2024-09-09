@@ -29,5 +29,8 @@ class XTUEMSConfig(metaclass=BaseConfig):
     XTU_EMS_STUDENT_EXAM_URL: str = XTU_EMS_BASE_URL + "/xsks/xsksap_list"
     """湘潭大学教务系统-学生考试安排地址"""
 
+    XTU_EMS_STUDENT_FREE_ROOM_URL: str = XTU_EMS_BASE_URL + "/kbxx/kxjs_query"
+    """湘潭大学教务系统-空闲教室地址"""
+
     XTU_EMS_CURRENT_TIME: str = "2024-2025-1"
     """湘潭大学教务系统-系统当前学期"""

@@ -34,3 +34,15 @@ class EMSGetter(Handler):
     def _extra_info(self, soup: BeautifulSoup):
         pass
 
+
+class EMSPoster(EMSGetter):
+    def handler(self, session: Session, *args, **kwargs):
+        """获取学生信息"""
+        with self._get_session(session) as ems_session:
+            resp = ems_session.post(self.url(), self._data())
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            return self._extra_info(soup)
+
+    @abstractmethod
+    def _data(self):
+        pass

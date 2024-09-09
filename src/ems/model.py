@@ -156,3 +156,12 @@ class ExamInfo(BaseModel):
     """考试地点"""
     type: str = '考试'
     """考核方式"""
+
+
+class ClassroomStatus(BaseModel):
+    """教室信息"""
+
+    name: str = ""
+    """教室名称"""
+    status: list[str] = []
+    """教室状态"""
