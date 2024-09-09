@@ -1,5 +1,5 @@
 """校务系统信息"""
-from typing import Tuple
+from typing import Tuple, Literal
 
 from pydantic import BaseModel
 
@@ -104,3 +104,42 @@ class CourseTable(BaseModel):
             return self.__getattribute__(_get_day_name(item))
         # 如果不是int，则返回相应的课程表
         return self.__getattribute__(item)
+
+
+class Score(BaseModel):
+    """成绩信息"""
+
+    name: str
+    """课程名称"""
+    score: str
+    """成绩。"""
+    credit: str
+    """学分"""
+    type: Literal['必修', '选修', '跨学科选修']
+    """成绩类型"""
+    term: int
+    """学期"""
+
+
+class ScoreBoard(BaseModel):
+    """成绩信息"""
+
+    scores: list[Score] = []
+    """成绩列表"""
+    total_credit: Tuple[str, str] = (0, 0)
+    """总学分"""
+    elective_credit: Tuple[str, str] = (0, 0)
+    """选修课学分"""
+    compulsory_credit: Tuple[str, str] = (0, 0)
+    """必修课学分"""
+    cross_course_credit: Tuple[str, str] = (0, 0)
+    """跨学科选修学分"""
+    average_score: str = 0
+    """平均分"""
+    gpa: str = 0
+    """总绩点"""
+
+    cet4: str = None
+    """CET4 成绩"""
+    cet6: str = None
+    """CET6 成绩"""
