@@ -143,3 +143,16 @@ class ScoreBoard(BaseModel):
     """CET4 成绩"""
     cet6: str = None
     """CET6 成绩"""
+
+
+class ExamInfo(BaseModel):
+    """考试信息"""
+
+    name: str = ""
+    """考试名称"""
+    time: str = None
+    """考试时间"""
+    location: str = None
+    """考试地点"""
+    type: str = '考试'
+    """考核方式"""
