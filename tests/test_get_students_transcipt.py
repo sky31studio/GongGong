@@ -9,10 +9,10 @@ password = os.getenv("XTU_PASSWORD")
 class TestStudentTranscriptGetter(TestCase):
     def test_handler(self):
         from ems.account import AuthenticationAccount
-        from ems.ems import ZQEducationalManageSystem
+        from ems.ems import QZEducationalManageSystem
         account = AuthenticationAccount(username=username,
                                         password=password)
-        ems = ZQEducationalManageSystem()
+        ems = QZEducationalManageSystem()
         session = ems.login(account)
         from ems.handler.get_students_transcipt import StudentTranscriptGetter
         handler = StudentTranscriptGetter()

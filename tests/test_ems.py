@@ -9,9 +9,9 @@ class TestZQEducationalManageSystem(TestCase):
     def test_login(self):
         """测试登录"""
         from ems.account import AuthenticationAccount
-        from ems.ems import ZQEducationalManageSystem
+        from ems.ems import QZEducationalManageSystem
         account = AuthenticationAccount(username=username,
                                         password=password)
-        ems = ZQEducationalManageSystem()
+        ems = QZEducationalManageSystem()
         session = ems.login(account)
         self.assertIsNotNone(session)

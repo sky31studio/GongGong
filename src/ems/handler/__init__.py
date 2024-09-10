@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
 
-from ems.ems import ZQEducationalManageSystem
+from ems.ems import QZEducationalManageSystem
 from ems.session import Session
 
 
@@ -14,7 +14,7 @@ class Handler(ABC):
 
     def _get_session(self, session: Session):
         sess = requests.session()
-        sess.cookies.set(ZQEducationalManageSystem.SESSION_NAME, session.session_id)
+        sess.cookies.set(QZEducationalManageSystem.SESSION_NAME, session.session_id)
         return sess
 
 
