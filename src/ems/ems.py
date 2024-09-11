@@ -18,21 +18,6 @@ class EducationalManageSystem(ABC):
         """教务系统登陆，返回登陆session"""
         pass
 
-    @abstractmethod
-    def get_courses(self, session: Session):
-        """从校务系统中获取课程"""
-        pass
-
-    @abstractmethod
-    def get_scores(self, session: Session):
-        """从教务系统中获取成绩"""
-        pass
-
-    @abstractmethod
-    def get_exams(self, session: Session):
-        """从校务系统中获取考试安排"""
-        pass
-
 
 class QZEducationalManageSystem(EducationalManageSystem):
     """
@@ -104,12 +89,3 @@ class QZEducationalManageSystem(EducationalManageSystem):
 
         # 将列表转换为字符串并返回
         return ''.join(encoded)
-
-    def get_courses(self, session: Session):
-        pass
-
-    def get_scores(self, session: Session):
-        pass
-
-    def get_exams(self, session: Session):
-        pass

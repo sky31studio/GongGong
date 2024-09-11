@@ -38,7 +38,7 @@ def _extra_student_info(soup: BeautifulSoup) -> StudentBasicInfo:
     return StudentBasicInfo(**info)
 
 
-class StudentInfoGetrrer(EMSGetter):
+class StudentInfoGetter(EMSGetter):
     """获取学生信息"""
 
     def url(self):
