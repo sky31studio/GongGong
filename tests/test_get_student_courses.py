@@ -18,5 +18,5 @@ class TestStudentCourseGetter(TestCase):
         session = ems.login(account)
         handler = StudentCourseGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, default=lambda o: o.__dict__, ensure_ascii=False))
+        print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)

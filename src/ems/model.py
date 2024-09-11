@@ -1,4 +1,5 @@
 """校务系统信息"""
+from datetime import datetime
 from typing import Tuple, Literal
 
 from pydantic import BaseModel
@@ -165,3 +166,12 @@ class ClassroomStatus(BaseModel):
     """教室名称"""
     status: list[str] = []
     """教室状态"""
+
+
+class TeachingCalendar(BaseModel):
+    """教学日历"""
+
+    start: datetime = None
+    """开始时间"""
+    term_id: str = ""
+    """学期"""

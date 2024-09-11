@@ -17,5 +17,5 @@ class TestStudentTranscriptGetter(TestCase):
         from ems.handler.get_students_transcipt import StudentTranscriptGetter
         handler = StudentTranscriptGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp.dict(), indent=4, ensure_ascii=False))
+        print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)

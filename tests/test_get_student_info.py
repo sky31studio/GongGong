@@ -17,5 +17,5 @@ class TestStudentInfoHandler(TestCase):
         from ems.handler.get_student_info import StudentInfoGetter
         handler = StudentInfoGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, default=lambda o: o.__dict__, ensure_ascii=False))
+        print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)

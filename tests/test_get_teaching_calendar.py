@@ -2,13 +2,11 @@ import json
 import os
 from unittest import TestCase
 
-from ems.handler.get_student_exam import StudentExamGetter
-
 username = os.getenv("XTU_USERNAME")
 password = os.getenv("XTU_PASSWORD")
 
 
-class TestStudentExamGetter(TestCase):
+class TestGetTeachingCalendar(TestCase):
     def test_handler(self):
         from ems.account import AuthenticationAccount
         from ems.ems import QZEducationalManageSystem
@@ -16,7 +14,8 @@ class TestStudentExamGetter(TestCase):
                                         password=password)
         ems = QZEducationalManageSystem()
         session = ems.login(account)
-        handler = StudentExamGetter()
+        from ems.handler.get_teaching_calendar import GetTeachingCalendar
+        handler = GetTeachingCalendar()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
+        print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)

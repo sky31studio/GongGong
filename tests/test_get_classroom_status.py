@@ -18,7 +18,7 @@ class TestClassroomStatusGetter(TestCase):
         session = ems.login(account)
         handler = ClassroomStatusGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, default=lambda o: o.__dict__, ensure_ascii=False))
+        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)
 
 
@@ -32,5 +32,5 @@ class TestClassroomStatusGetterTomorrow(TestCase):
         session = ems.login(account)
         handler = ClassroomStatusGetterTomorrow()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, default=lambda o: o.__dict__, ensure_ascii=False))
+        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)
