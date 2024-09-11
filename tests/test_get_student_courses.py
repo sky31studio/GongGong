@@ -2,7 +2,7 @@ import json
 import os
 from unittest import TestCase
 
-from xtu_ems.ems.handler import StudentCourseGetter
+from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 
 username = os.getenv("XTU_USERNAME")
 password = os.getenv("XTU_PASSWORD")

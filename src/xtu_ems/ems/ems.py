@@ -1,5 +1,6 @@
 """教务系统模块"""
 import json
+import logging
 from abc import ABC, abstractmethod
 
 import requests
@@ -14,7 +15,7 @@ class EducationalManageSystem(ABC):
     """教务系统类"""
 
     @abstractmethod
-    def login(self, account: AuthenticationAccount) -> Session:
+    def login(self, account: AuthenticationAccount, retry_time=2) -> Session:
         """教务系统登陆，返回登陆session"""
         pass
 
@@ -29,7 +30,34 @@ class QZEducationalManageSystem(EducationalManageSystem):
         super().__init__()
         self.captcha = ImageDetector()
 
-    def login(self, account: AuthenticationAccount) -> Session:
+    def login(self, account: AuthenticationAccount, retry_time=2) -> Session:
+        """
+        登陆教务系统
+        Args:
+            account: 账户信息
+            retry_time: 重试次数
+
+        Returns:
+            登陆后的session
+
+        """
+        if (account.username is None
+                or account.username.strip() == ''
+                or account.password is None
+                or account.password.strip() == ''):
+            raise Exception("用户名或密码为空")
+
+        if retry_time <= 0:
+            raise Exception("登陆失败")
+        for i in range(retry_time):
+            try:
+                return self._login(account)
+            except Exception as e:
+                logging.debug('登陆失败，正在重试{i}/{retry_time}次')
+                continue
+        raise Exception("登陆失败")
+
+    def _login(self, account: AuthenticationAccount) -> Session:
         with requests.session() as ems_session:
             resp = ems_session.get(XTUEMSConfig.XTU_EMS_CAPTCHA_URL)
             session_id = resp.cookies.get(QZEducationalManageSystem.SESSION_NAME)

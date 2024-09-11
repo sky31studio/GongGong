@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from xtu_ems.util import ImageDetector
+from xtu_ems.util.captcha import ImageDetector
 
 
 class TestImageDetector(TestCase):

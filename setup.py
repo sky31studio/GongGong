@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 with open('requirements.txt', 'r') as f:
-    requirements = f.readlines()
+    requirements = [req.strip() for req in f.readlines()]
 print(requirements)
 setup(
     name='xtu_ems',
