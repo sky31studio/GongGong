@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup
 
-from ems.config import XTUEMSConfig
-from ems.handler import EMSPoster
-from ems.model import ExamInfo
+from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.handler import EMSPoster
+from xtu_ems.ems.model import ExamInfo
 
 
 class StudentExamGetter(EMSPoster):

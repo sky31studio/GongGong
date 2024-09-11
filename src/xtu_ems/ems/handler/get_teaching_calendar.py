@@ -2,9 +2,9 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from ems.config import XTUEMSConfig
-from ems.handler import EMSGetter
-from ems.model import TeachingCalendar
+from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.handler import EMSGetter
+from xtu_ems.ems.model import TeachingCalendar
 
 
 class GetTeachingCalendar(EMSGetter):

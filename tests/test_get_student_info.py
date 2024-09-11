@@ -8,13 +8,13 @@ password = os.getenv("XTU_PASSWORD")
 
 class TestStudentInfoHandler(TestCase):
     def test_handler(self):
-        from ems.account import AuthenticationAccount
-        from ems.ems import QZEducationalManageSystem
+        from xtu_ems.ems.account import AuthenticationAccount
+        from xtu_ems.ems.ems import QZEducationalManageSystem
         account = AuthenticationAccount(username=username,
                                         password=password)
         ems = QZEducationalManageSystem()
         session = ems.login(account)
-        from ems.handler.get_student_info import StudentInfoGetter
+        from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
         handler = StudentInfoGetter()
         resp = handler.handler(session)
         print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))

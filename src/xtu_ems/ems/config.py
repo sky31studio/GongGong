@@ -1,5 +1,5 @@
 """配置类，这些配置可以被这个包下的所有代码公用，同时修改配置不影响业务逻辑"""
-from basic import BaseConfig
+from xtu_ems.basic import BaseConfig
 
 
 class BasicUrl(metaclass=BaseConfig):

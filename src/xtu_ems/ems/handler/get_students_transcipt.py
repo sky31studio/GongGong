@@ -3,10 +3,10 @@ from io import BytesIO
 import pandas as pd
 from pdfplumber import PDF
 
-from ems.config import XTUEMSConfig
-from ems.handler import Handler
-from ems.model import ScoreBoard, Score
-from ems.session import Session
+from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.handler import Handler
+from xtu_ems.ems.model import ScoreBoard, Score
+from xtu_ems.ems.session import Session
 
 _data = {
     "xs0101id": "",

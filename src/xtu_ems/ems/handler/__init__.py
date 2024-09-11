@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 import requests
 from bs4 import BeautifulSoup
 
-from ems.ems import QZEducationalManageSystem
-from ems.session import Session
+from xtu_ems.ems.ems import QZEducationalManageSystem
+from xtu_ems.ems.session import Session
 
 
 class Handler(ABC):

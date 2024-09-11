@@ -1,8 +1,8 @@
 from bs4 import BeautifulSoup, Tag
 
-from ems.config import XTUEMSConfig
-from ems.handler import EMSGetter
-from ems.model import CourseInfo, CourseTable
+from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.handler import EMSGetter
+from xtu_ems.ems.model import CourseInfo, CourseTable
 
 
 class StudentCourseGetter(EMSGetter):

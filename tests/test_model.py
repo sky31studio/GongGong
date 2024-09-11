@@ -3,7 +3,7 @@ from unittest import TestCase
 
 class TestCourseInfo(TestCase):
     def test_week_segments(self):
-        from ems.model import CourseInfo
+        from xtu_ems.ems import CourseInfo
         course = CourseInfo(name='算法设计与分析',
                             teacher='张三',
                             classroom='科技楼101',

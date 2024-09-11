@@ -4,10 +4,10 @@ from abc import ABC, abstractmethod
 
 import requests
 
-from ems.account import AuthenticationAccount
-from ems.config import XTUEMSConfig
-from ems.session import Session
-from util.captcha import ImageDetector
+from xtu_ems.ems.account import AuthenticationAccount
+from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.session import Session
+from xtu_ems.util.captcha import ImageDetector
 
 
 class EducationalManageSystem(ABC):
