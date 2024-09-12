@@ -4,4 +4,3 @@ beautifulsoup4~=4.12.3
 pdfplumber~=0.11.4
 pandas~=2.2.2
 pydantic~=2.9.1
-setuptools~=72.1.0
