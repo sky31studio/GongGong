@@ -55,10 +55,9 @@ Account((账号))--登陆-->EMS[教务系统]--返回会话-->Session((会话))-
 
 ```python
 import json
-import os
 
-username = os.getenv("XTU_USERNAME")  # 你的校务系统账号
-password = os.getenv("XTU_PASSWORD")  # 你的教务系统密码
+username = "XTU_USERNAME"  # 你的校务系统账号
+password = "XTU_PASSWORD"  # 你的教务系统密码
 
 from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
 from xtu_ems.ems.account import AuthenticationAccount
