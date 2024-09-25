@@ -1,6 +1,6 @@
 # GongGong
 
-拱拱是一个基于网路爬虫的湘潭大学校园APP。本项目是GongGong的后端部分。
+拱拱是一个基于网络爬虫的湘潭大学校园APP。本项目是GongGong的后端部分。
 
 ## 项目架构
 
@@ -14,11 +14,12 @@
 
 > [!NOTE]
 >
+> 当前部分并未完全通过测试
 >
-当前部分并未完全通过测试，如果你在使用的过程中发现了问题，欢迎通过**[Issues](https://github.com/sky31studio/GongGong/issues)
-**或者**[Email](mailto:sky31studio@outlook.com)**
+> 如果你在使用的过程中发现了问题，欢迎通过 [Issues](https://github.com/sky31studio/GongGong/issues) 向我们反映。
 
-网络爬虫部分代码在`src/xtu_ems`目录下。我们采用SDK的方式来允许其他人在本项目的基础上进行二次开发。
+
+网络爬虫部分代码在 `src/xtu_ems` 目录下。我们采用SDK的方式来允许其他人在本项目的基础上进行二次开发。
 您可以在releases中下载对应版本的SDK并安装。
 
 ```shell
@@ -56,13 +57,13 @@ Account((账号))--登陆-->EMS[教务系统]--返回会话-->Session((会话))-
 import json
 import os
 
-username = os.getenv("XTU_USERNAME") # 你的校务系统账号
-password = os.getenv("XTU_PASSWORD") # 你的教务系统密码
-
+username = os.getenv("XTU_USERNAME")  # 你的校务系统账号
+password = os.getenv("XTU_PASSWORD")  # 你的教务系统密码
 
 from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.ems import QZEducationalManageSystem
+
 account = AuthenticationAccount(username=username,
                                 password=password)
 ems = QZEducationalManageSystem()
