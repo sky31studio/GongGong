@@ -1,8 +1,21 @@
 """校务系统信息"""
 from datetime import datetime
-from typing import Tuple, Literal
+from typing import Tuple, Literal, TypeVar, Generic
 
 from pydantic import BaseModel
+
+T = TypeVar('T')
+
+
+class InformationPackage(BaseModel, Generic[T]):
+    """信息包"""
+
+    student_id: str
+    """学生id"""
+    data: T
+    """数据"""
+    update_time: datetime = datetime.now()
+    """更新时间"""
 
 
 class StudentBasicInfo(BaseModel):
@@ -36,38 +49,12 @@ class CourseInfo(BaseModel):
     """教室"""
     weeks: str
     """周次(节次)"""
-
-    @property
-    def week_segments(self) -> list[Tuple[int, int]]:
-        """
-        获取上课的周段
-
-        Returns:
-            返回上课周段列表，每一段结构为 [start,end]
-        """
-        week_seg = self.weeks.split(sep=',')
-        return [(int(seg.split('-')[0]), int(seg.split('-')[1]))
-                for seg in week_seg]
-
-    def __contains__(self, item):
-        if not isinstance(item, int):
-            item = int(item)
-        return self.in_weeks(item)
-
-    def in_weeks(self, week: int):
-        """
-        判断在某一周内是否仍然有课
-        Args:
-            week: 需要判断的时间
-
-        Returns:
-            返回bool表示是否仍然有课程
-        """
-        for start, end in self.week_segments:
-            if start <= week <= end:
-                return True
-        else:
-            return False
+    start_time: int
+    """开始上课节次"""
+    duration: int
+    """结束上课节次"""
+    day: str
+    """星期"""
 
 
 def _get_day_name(day: int):
@@ -105,6 +92,14 @@ class CourseTable(BaseModel):
             return self.__getattribute__(_get_day_name(item))
         # 如果不是int，则返回相应的课程表
         return self.__getattribute__(item)
+
+    def to_list(self):
+        """从课程表中提取课程列表"""
+        ret = []
+        for day in self.__dict__.values():
+            for course in day:
+                ret += course
+        return ret
 
 
 class Score(BaseModel):
