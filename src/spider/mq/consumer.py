@@ -20,16 +20,23 @@ class ConsumerWrapper:
         """后置处理函数，用于在发布函数执行后的处理函数"""
         channel.basic_ack(delivery_tag=method.delivery_tag)
 
+    def _exception_handle(self, e, channel, method, properties, body):
+        """异常处理函数，用于处理监听函数执行时的异常"""
+        channel.basic_nack(delivery_tag=method.delivery_tag)
+
     def _consume_around_process(self, func, channel, method, properties, body):
         """环绕处理函数，用于执行监听函数并返回执行结果"""
         return func(channel, method, properties, body)
 
     def __call__(self, channel, method, properties, body):
-        self.consume_counter += 1
-        self._consume_pre_process(channel, method, properties, body)
-        result = self._consume_around_process(self.func, channel, method, properties, body)
-        self._consume_post_process(result, channel, method, properties, body)
-        return result
+        try:
+            self.consume_counter += 1
+            self._consume_pre_process(channel, method, properties, body)
+            result = self._consume_around_process(self.func, channel, method, properties, body)
+            self._consume_post_process(result, channel, method, properties, body)
+            return result
+        except Exception as e:
+            self._exception_handle(e, channel, method, properties, body)
 
 
 class MQConsumer:
@@ -86,13 +93,13 @@ class MQConsumerWrapper(ConsumerWrapper):
         fun = self.func
         if self.tracked:
             start_time = time.time()
-            try:
-                func(channel=channel, method=method, properties=properties, body=body)
-                logger.debug(
-                    f"[{self.queue_name}.{self.func.__name__}] Finish Msg-{msg_id} in [{time.time() - start_time}]")
-            except Exception as e:
-                logger.error(f"[{self.queue_name}.{fun.__name__}] Finish Msg-{msg_id} in [{time.time()}]")
-                logger.error(f"[{self.queue_name}.{fun.__name__}] Error Msg-{msg_id}", exc_info=e)
-
+            func(channel=channel, method=method, properties=properties, body=body)
+            logger.debug(
+                f"[{self.queue_name}.{self.func.__name__}] Finish Msg-{msg_id} in [{time.time() - start_time}]")
         else:
             fun(channel=channel, method=method, properties=properties, body=body)
+
+    def _exception_handle(self, e, channel, method, properties, body):
+        logger = self.logger
+        logger.error(f"[{self.queue_name}.{self.func.__name__}] Exception Msg-{self.consume_counter}: {e}")
+        super()._exception_handle(e, channel, method, properties, body)
