@@ -1,6 +1,7 @@
 import os
 from unittest import TestCase
 
+from xtu_ems.ems.config import RequestConfig
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 from xtu_ems.ems.model import InformationPackage
 
@@ -31,7 +32,8 @@ class TestStudentCourseGetter(TestCase):
         handler = StudentCourseGetter()
         url = handler.url()
         with handler._get_session(session) as ems_session:
-            resp = ems_session.post(url=url, data={"xnxq01id": "2022-2023-2"})
+            resp = ems_session.post(url=url, data={"xnxq01id": "2022-2023-2"},
+                                    timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
         import bs4
         res = handler._extra_info(bs4.BeautifulSoup(resp.text, "html.parser"))
         li = res.to_list()

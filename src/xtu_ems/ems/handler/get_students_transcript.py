@@ -3,7 +3,7 @@ from io import BytesIO
 import pandas as pd
 from pdfplumber import PDF
 
-from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.handler import Handler
 from xtu_ems.ems.model import ScoreBoard, Score
 from xtu_ems.ems.session import Session
@@ -22,7 +22,7 @@ class StudentTranscriptGetter(Handler):
 
     def handler(self, session: Session, *args, **kwargs):
         with self._get_session(session) as ems_session:
-            resp = ems_session.post(self.url(), data=_data)
+            resp = ems_session.post(self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code == 200:
                 pdf = PDF(BytesIO(resp.content))
                 for page in pdf.pages:

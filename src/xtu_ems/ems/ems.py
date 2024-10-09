@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 import requests
 
 from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.config import XTUEMSConfig
+from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.session import Session
 from xtu_ems.util.captcha import ImageDetector
 
@@ -42,9 +42,9 @@ class QZEducationalManageSystem(EducationalManageSystem):
 
         """
         if (account.username is None
-                or account.username.strip() == ''
-                or account.password is None
-                or account.password.strip() == ''):
+            or account.username.strip() == ''
+            or account.password is None
+            or account.password.strip() == ''):
             raise Exception("用户名或密码为空")
 
         if retry_time <= 0:
@@ -59,11 +59,11 @@ class QZEducationalManageSystem(EducationalManageSystem):
 
     def _login(self, account: AuthenticationAccount) -> Session:
         with requests.session() as ems_session:
-            resp = ems_session.get(XTUEMSConfig.XTU_EMS_CAPTCHA_URL)
+            resp = ems_session.get(XTUEMSConfig.XTU_EMS_CAPTCHA_URL, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             session_id = resp.cookies.get(QZEducationalManageSystem.SESSION_NAME)
             session = Session(session_id=session_id)
             captcha = self.captcha.verify(resp.content)
-            resp = ems_session.post(XTUEMSConfig.XTU_EMS_SIG_URL)
+            resp = ems_session.post(XTUEMSConfig.XTU_EMS_SIG_URL, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             signature = json.loads(resp.content).get("data")
             encoded = self._signature(account.username, account.password, signature)
             headers = {
@@ -74,7 +74,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 "PASSWORD": account.password,
                 "encoded": encoded,
                 "RANDOMCODE": captcha,
-            }, headers=headers, allow_redirects=False)
+            }, headers=headers, allow_redirects=False, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code != 302:
                 raise Exception("登陆失败")
         return session

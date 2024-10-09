@@ -9,6 +9,14 @@ class BasicUrl(metaclass=BaseConfig):
     """湘潭大学教务系统-基础地址"""
 
 
+class RequestConfig(metaclass=BaseConfig):
+    """请求配置"""
+
+    XTU_EMS_REQUEST_TIMEOUT: int = 10
+    """请求超时时间"""
+
+
+
 class XTUEMSConfig(metaclass=BaseConfig):
     """湘潭大学教务系统配置"""
 
