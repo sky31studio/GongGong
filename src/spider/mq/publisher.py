@@ -26,7 +26,7 @@ class PublisherWrapper:
         self.publish_counter += 1
         self._publish_pre_process(*args, **kwargs)
         result = self._publish_around_process(*args, **kwargs)
-        self._publish_post_process(*args, **kwargs)
+        self._publish_post_process(result, *args, **kwargs)
         return result
 
 
@@ -52,7 +52,7 @@ class MQPublisher:
         """
         发布消息，当被装饰的函数执行时，如果结果非空，则同步到消息队列中
         Args:
-            exchange:
+            exchange: 消息队列交换机名称
             queue_name: 消息队列名称
 
         Returns:
@@ -80,14 +80,16 @@ class MQPublisherWrapper(PublisherWrapper):
         self.queue_name = queue_name
 
     def _publish_around_process(self, *args, **kwargs):
+        body = self.func(*args, **kwargs)
+        return body
+
+    def _publish_post_process(self, result, *args, **kwargs):
         logger = self.logger
         channels = self.channel
-        body = self.func(*args, **kwargs)
         msg_id = self.publish_counter
         logger.info(
             f"[{self.queue_name}.{self.func.__name__}] Publish Msg-{msg_id} to Queue[{self.queue_name}]")
-        logger.debug(f"[{self.queue_name}.{self.func.__name__}] Publish Msg-{msg_id}: {body}")
+        logger.debug(f"[{self.queue_name}.{self.func.__name__}] Publish Msg-{msg_id}: {result}")
         channels.basic_publish(exchange=self.exchange,
                                routing_key=self.queue_name,
-                               body=body)
-        return body
+                               body=result)

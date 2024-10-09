@@ -1,11 +1,10 @@
 """pika 监听装饰器"""
 import logging
 import threading
-import time
 
 from pika.adapters.blocking_connection import BlockingConnection
 
-from spider.mq.consumer import MQConsumer
+from spider.mq.consumer import MQConsumer, MQConsumerWrapper
 from spider.mq.publisher import MQPublisher, PublisherWrapper, MQPublisherWrapper
 
 
@@ -43,7 +42,7 @@ class MQ(MQRouter):
     def _add_consumer(self, queue_name, func):
         """添加监听函数，在初始化监听函数时调用"""
         super()._add_consumer(queue_name, func)
-        channel = self._get_channel(func)
+        channel = self._get_channel(func.func)
         channel.queue_declare(queue=queue_name)
         channel.basic_consume(queue=queue_name,
                               on_message_callback=func)
@@ -57,28 +56,10 @@ class MQ(MQRouter):
             self.listener[queue_name] = [f_t]
         else:
             self.listener[queue_name].append(f_t)
-
         thr.start()
 
-    def _consume_around_process(self, queue_name, fun, channel, method, properties, body):
-        msg_id = self.consumers_counter[queue_name]
-        logger = self.logger
-        msg_id = self.consumers_counter[queue_name]
-        logger.info(f"[{queue_name}.{fun.__name__}] Received Msg-{msg_id} from Queue[{queue_name}]")
-        logger.debug(f"[{queue_name}.{fun.__name__}] Start Msg-{msg_id}: {body}")
-        if self.tracked:
-            """跟踪执行时间"""
-            start_time = time.time()
-            try:
-                fun(channel=channel, method=method, properties=properties, body=body)
-                logger.debug(
-                    f"[{queue_name}.{fun.__name__}] Finish Msg-{msg_id} in [{time.time() - start_time}]")
-            except Exception as e:
-                logger.error(f"[{queue_name}.{fun.__name__}] Finish Msg-{msg_id} in [{time.time()}]")
-                logger.error(f"[{queue_name}.{fun.__name__}] Error Msg-{msg_id}", exc_info=e)
-        else:
-            fun(channel=channel, method=method, properties=properties, body=body)
-        channel.basic_ack(delivery_tag=method.delivery_tag)
+    def _build_consumer_wrapper(self, func, queue_name, exchange):
+        return MQConsumerWrapper(func, queue_name, self._get_channel(func), self.logger, self.exchange, self.tracked)
 
     def _build_publisher_wrapper(self, func, queue_name, exchange):
         return MQPublisherWrapper(func, queue_name, self._get_channel(func), self.logger, self.exchange)
