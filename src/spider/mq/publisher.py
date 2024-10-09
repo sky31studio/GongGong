@@ -22,11 +22,16 @@ class PublisherWrapper:
         """环绕处理函数，用于执行发布函数并返回执行结果"""
         return self.func(*args, **kwargs)
 
+    def _publish_result(self, result):
+        """发布结果函数，用于发布函数执行后的处理函数"""
+        pass
+
     def __call__(self, *args, **kwargs):
         self.publish_counter += 1
         self._publish_pre_process(*args, **kwargs)
         result = self._publish_around_process(*args, **kwargs)
         self._publish_post_process(result, *args, **kwargs)
+        self._publish_result(result)
         return result
 
 
@@ -34,15 +39,17 @@ class MQPublisher:
     """负责消息队列的发布。但是不负责消息队列的连接和关闭。"""
 
     def __init__(self):
-        self.publisher = {}
+        self.publishers: dict[str, list[PublisherWrapper]] = {}
         """发布者，用于存储发布函数"""
 
-    def _add_publisher(self, queue_name, exchange: str, func):
+    def _add_publisher(self, queue_name, exchange: str, func_wrapper: PublisherWrapper):
         """添加发布函数，在初始化发布函数时调用"""
-        if queue_name not in self.publisher:
-            self.publisher[f'{exchange}.{queue_name}'] = [func]
+        publish_func = self._build_publisher_wrapper(func_wrapper.func, queue_name, exchange)._publish_result
+        func_wrapper._publish_result = publish_func
+        if queue_name not in self.publishers:
+            self.publishers[f'{queue_name}'] = [func_wrapper]
         else:
-            self.publisher[f'{exchange}.{queue_name}'].append(func)
+            self.publishers[f'{queue_name}'].append(func_wrapper)
 
     def _build_publisher_wrapper(self, func, queue_name, exchange):
         """构建发布函数，用于执行发布函数并返回执行结果"""
@@ -83,7 +90,7 @@ class MQPublisherWrapper(PublisherWrapper):
         body = self.func(*args, **kwargs)
         return body
 
-    def _publish_post_process(self, result, *args, **kwargs):
+    def _publish_result(self, result):
         logger = self.logger
         channels = self.channel
         msg_id = self.publish_counter

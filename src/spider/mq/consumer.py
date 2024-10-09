@@ -16,7 +16,7 @@ class ConsumerWrapper:
 
     def _consume_post_process(self, result, channel, method, properties, body):
         """后置处理函数，用于在发布函数执行后的处理函数"""
-        pass
+        channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def _consume_around_process(self, func, channel, method, properties, body):
         """环绕处理函数，用于执行监听函数并返回执行结果"""
@@ -34,15 +34,15 @@ class MQConsumer:
     """负责消息队列的监听和发布。但是不负责消息队列的连接和关闭。"""
 
     def __init__(self):
-        self.consumers = {}
+        self.consumers: dict[str, list[ConsumerWrapper]] = {}
         """消费者，用于存储消费者函数。"""
 
-    def _add_consumer(self, queue_name, func):
+    def _add_consumer(self, queue_name, func_wrapper: ConsumerWrapper):
         """添加监听函数，在初始化监听函数时调用"""
         if queue_name not in self.consumers:
-            self.consumers[queue_name] = [func]
+            self.consumers[queue_name] = [func_wrapper]
         else:
-            self.consumers[queue_name].append(func)
+            self.consumers[queue_name].append(func_wrapper)
 
     def _build_consumer_wrapper(self, func, queue_name, exchange):
         """构建监听函数，用于执行监听函数并返回执行结果"""
@@ -96,5 +96,3 @@ class MQConsumerWrapper(ConsumerWrapper):
         else:
             fun(channel=channel, method=method, properties=properties, body=body)
 
-    def _consume_post_process(self, result, channel, method, properties, body):
-        self.channel.basic_ack(delivery_tag=method.delivery_tag)
