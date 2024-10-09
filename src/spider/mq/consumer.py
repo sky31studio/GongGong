@@ -44,22 +44,21 @@ class MQConsumer:
         else:
             self.consumers[queue_name].append(func_wrapper)
 
-    def _build_consumer_wrapper(self, func, queue_name, exchange):
+    def _build_consumer_wrapper(self, func, queue_name):
         """构建监听函数，用于执行监听函数并返回执行结果"""
         return ConsumerWrapper(func)
 
-    def listen(self, queue_name: str, exchange: str = ''):
+    def listen(self, queue_name: str):
         """
         监听消息队列，不会改变被装饰的函数
         Args:
             queue_name: 消息队列交换机名称
-            exchange: 交换器名称
         Returns:
 
         """
 
         def decorator(func):
-            f = self._build_consumer_wrapper(func, queue_name, exchange)
+            f = self._build_consumer_wrapper(func, queue_name)
             self._add_consumer(queue_name, f)
             return func
 
@@ -67,14 +66,13 @@ class MQConsumer:
 
 
 class MQConsumerWrapper(ConsumerWrapper):
-    def __init__(self, func, queue_name, channel, logger=None, exchange='', tracked=True):
+    def __init__(self, func, queue_name, channel, logger=None, tracked=True):
         super().__init__(func)
         self.queue_name = queue_name
         self.channel = channel
         if logger is None:
-            self.logger = logging.getLogger('MQ-CONSUMER')
+            logger = logging.getLogger('MQ-CONSUMER')
         self.logger = logger
-        self.exchange = exchange
         self.tracked = tracked
 
     def _consume_around_process(self, func, channel, method, properties, body):
@@ -95,4 +93,3 @@ class MQConsumerWrapper(ConsumerWrapper):
 
         else:
             fun(channel=channel, method=method, properties=properties, body=body)
-

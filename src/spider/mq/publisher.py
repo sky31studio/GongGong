@@ -1,5 +1,6 @@
 import functools
 import logging
+from typing import Tuple
 
 
 class PublisherWrapper:
@@ -22,7 +23,7 @@ class PublisherWrapper:
         """环绕处理函数，用于执行发布函数并返回执行结果"""
         return self.func(*args, **kwargs)
 
-    def _publish_result(self, result):
+    def publish_result(self, result):
         """发布结果函数，用于发布函数执行后的处理函数"""
         pass
 
@@ -31,7 +32,7 @@ class PublisherWrapper:
         self._publish_pre_process(*args, **kwargs)
         result = self._publish_around_process(*args, **kwargs)
         self._publish_post_process(result, *args, **kwargs)
-        self._publish_result(result)
+        self.publish_result(result)
         return result
 
 
@@ -39,64 +40,64 @@ class MQPublisher:
     """负责消息队列的发布。但是不负责消息队列的连接和关闭。"""
 
     def __init__(self):
-        self.publishers: dict[str, list[PublisherWrapper]] = {}
+        self.publishers: dict[Tuple[str, str], list[PublisherWrapper]] = {}
         """发布者，用于存储发布函数"""
 
-    def _add_publisher(self, queue_name, exchange: str, func_wrapper: PublisherWrapper):
+    def _add_publisher(self, route_key, exchange: str, func_wrapper: PublisherWrapper):
         """添加发布函数，在初始化发布函数时调用"""
-        publish_func = self._build_publisher_wrapper(func_wrapper.func, queue_name, exchange)._publish_result
-        func_wrapper._publish_result = publish_func
-        if queue_name not in self.publishers:
-            self.publishers[f'{queue_name}'] = [func_wrapper]
+        publish_func = self._build_publisher_wrapper(func_wrapper.func, route_key, exchange).publish_result
+        func_wrapper.publish_result = publish_func
+        if route_key not in self.publishers:
+            self.publishers[(exchange, route_key)] = [func_wrapper]
         else:
-            self.publishers[f'{queue_name}'].append(func_wrapper)
+            self.publishers[(exchange, route_key)].append(func_wrapper)
 
-    def _build_publisher_wrapper(self, func, queue_name, exchange):
+    def _build_publisher_wrapper(self, func, route_key, exchange):
         """构建发布函数，用于执行发布函数并返回执行结果"""
         return PublisherWrapper(func)
 
-    def publish(self, queue_name: str, exchange: str = ''):
+    def publish(self, route_key: str, exchange: str = ''):
         """
         发布消息，当被装饰的函数执行时，如果结果非空，则同步到消息队列中
         Args:
             exchange: 消息队列交换机名称
-            queue_name: 消息队列名称
+            route_key: 消息队列名称
 
         Returns:
             返回被装饰的函数执行结果
         """
 
         def decorator(func):
-            wrapper = self._build_publisher_wrapper(func, queue_name, exchange)
+            wrapper = self._build_publisher_wrapper(func, route_key, exchange)
             func_wrapper = functools.wraps(func)(wrapper)
-            self._add_publisher(queue_name, exchange, func_wrapper)
+            self._add_publisher(route_key, exchange, func_wrapper)
             return func_wrapper
 
         return decorator
 
 
 class MQPublisherWrapper(PublisherWrapper):
-    def __init__(self, func, queue_name, channel, logger=None, exchange=''):
+    def __init__(self, func, route_key, channel, logger=None, exchange=''):
         super().__init__(func)
         self.channel = channel
         self.exchange = exchange
         if not logger:
             logger = logging.getLogger('MQ-PUBLISHER')
         self.logger = logger
-        channel.queue_declare(queue=queue_name)
-        self.queue_name = queue_name
+        channel.queue_declare(queue=route_key)
+        self.route_key = route_key
 
     def _publish_around_process(self, *args, **kwargs):
         body = self.func(*args, **kwargs)
         return body
 
-    def _publish_result(self, result):
+    def publish_result(self, result):
         logger = self.logger
         channels = self.channel
         msg_id = self.publish_counter
         logger.info(
-            f"[{self.queue_name}.{self.func.__name__}] Publish Msg-{msg_id} to Queue[{self.queue_name}]")
-        logger.debug(f"[{self.queue_name}.{self.func.__name__}] Publish Msg-{msg_id}: {result}")
+            f"[{self.route_key}.{self.func.__name__}] Publish Msg-{msg_id} to Queue[{self.route_key}]")
+        logger.debug(f"[{self.route_key}.{self.func.__name__}] Publish Msg-{msg_id}: {result}")
         channels.basic_publish(exchange=self.exchange,
-                               routing_key=self.queue_name,
+                               routing_key=self.route_key,
                                body=result)
