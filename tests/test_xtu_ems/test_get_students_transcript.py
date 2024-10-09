@@ -14,7 +14,7 @@ class TestStudentTranscriptGetter(TestCase):
                                         password=password)
         ems = QZEducationalManageSystem()
         session = ems.login(account)
-        from xtu_ems.ems.handler.get_students_transcipt import StudentTranscriptGetter
+        from xtu_ems.ems.handler.get_students_transcript import StudentTranscriptGetter
         handler = StudentTranscriptGetter()
         resp = handler.handler(session)
         print(json.dumps(resp.dict(), indent=4, ensure_ascii=False, default=str))

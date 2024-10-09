@@ -7,7 +7,7 @@ from xtu_ems.ems.handler import EMSGetter
 from xtu_ems.ems.model import TeachingCalendar
 
 
-class GetTeachingCalendar(EMSGetter):
+class TeachingCalendarGetter(EMSGetter):
     def url(self):
         return XTUEMSConfig.XTU_EMS_TEACHING_WEEKS_URL
 

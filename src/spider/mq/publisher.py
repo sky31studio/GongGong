@@ -2,6 +2,8 @@ import functools
 import logging
 from typing import Tuple
 
+import pika.channel
+
 
 class PublisherWrapper:
     """负责消息队列的发布。发布函数执行时使用该类。"""
@@ -25,10 +27,9 @@ class PublisherWrapper:
 
     def publish_result(self, result):
         """发布结果函数，用于发布函数执行后的处理函数"""
-        pass
+        self.publish_counter += 1
 
     def __call__(self, *args, **kwargs):
-        self.publish_counter += 1
         self._publish_pre_process(*args, **kwargs)
         result = self._publish_around_process(*args, **kwargs)
         self._publish_post_process(result, *args, **kwargs)
@@ -77,14 +78,15 @@ class MQPublisher:
 
 
 class MQPublisherWrapper(PublisherWrapper):
-    def __init__(self, func, route_key, channel, logger=None, exchange=''):
+    def __init__(self, func, route_key, channel: pika.channel.Channel, logger=None, exchange=''):
         super().__init__(func)
         self.channel = channel
         self.exchange = exchange
         if not logger:
             logger = logging.getLogger('MQ-PUBLISHER')
         self.logger = logger
-        channel.queue_declare(queue=route_key)
+        if exchange != '':
+            channel.exchange_declare(exchange)
         self.route_key = route_key
 
     def _publish_around_process(self, *args, **kwargs):
@@ -92,6 +94,7 @@ class MQPublisherWrapper(PublisherWrapper):
         return body
 
     def publish_result(self, result):
+        super().publish_result(result)
         logger = self.logger
         channels = self.channel
         msg_id = self.publish_counter

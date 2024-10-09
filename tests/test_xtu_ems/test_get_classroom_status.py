@@ -2,13 +2,13 @@ import json
 import os
 from unittest import TestCase
 
-from xtu_ems.ems.handler.get_classroom_status import ClassroomStatusGetter, ClassroomStatusGetterTomorrow
+from xtu_ems.ems.handler.get_classroom_status import TodayClassroomStatusGetter, TomorrowClassroomStatusGetter
 
 username = os.getenv("XTU_USERNAME")
 password = os.getenv("XTU_PASSWORD")
 
 
-class TestClassroomStatusGetter(TestCase):
+class TestTodayClassroomStatusGetter(TestCase):
     def test_handler(self):
         from xtu_ems.ems.account import AuthenticationAccount
         from xtu_ems.ems.ems import QZEducationalManageSystem
@@ -16,13 +16,13 @@ class TestClassroomStatusGetter(TestCase):
                                         password=password)
         ems = QZEducationalManageSystem()
         session = ems.login(account)
-        handler = ClassroomStatusGetter()
+        handler = TodayClassroomStatusGetter()
         resp = handler.handler(session)
         print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)
 
 
-class TestClassroomStatusGetterTomorrow(TestCase):
+class TestTomorrowClassroomStatusGetter(TestCase):
     def test_handler(self):
         from xtu_ems.ems.account import AuthenticationAccount
         from xtu_ems.ems.ems import QZEducationalManageSystem
@@ -30,7 +30,7 @@ class TestClassroomStatusGetterTomorrow(TestCase):
                                         password=password)
         ems = QZEducationalManageSystem()
         session = ems.login(account)
-        handler = ClassroomStatusGetterTomorrow()
+        handler = TomorrowClassroomStatusGetter()
         resp = handler.handler(session)
         print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
         self.assertIsNotNone(resp)

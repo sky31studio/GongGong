@@ -1,6 +1,8 @@
 import logging
 import time
 
+import pika.channel
+
 
 class ConsumerWrapper:
     """负责消息队列的监听。监听函数执行时使用该类。"""
@@ -66,13 +68,14 @@ class MQConsumer:
 
 
 class MQConsumerWrapper(ConsumerWrapper):
-    def __init__(self, func, queue_name, channel, logger=None, tracked=True):
+    def __init__(self, func, queue_name, channel: pika.channel.Channel, logger=None, tracked=True):
         super().__init__(func)
         self.queue_name = queue_name
         self.channel = channel
         if logger is None:
             logger = logging.getLogger('MQ-CONSUMER')
         self.logger = logger
+        channel.queue_declare(queue=queue_name)
         self.tracked = tracked
 
     def _consume_around_process(self, func, channel, method, properties, body):

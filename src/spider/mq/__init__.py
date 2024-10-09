@@ -71,12 +71,12 @@ class MQ(MQRouter):
         挂载路由，会将路由中的所有消费者和发布者挂载到当前MQ中。
         生产者的发布动作会由当前MQ接管
         """
-        for queue_name, funcs in router.consumers.items():
-            for func in funcs:
-                self._add_consumer(queue_name, func)
 
         for ex_route, funcs in router.publishers.items():
             for func in funcs:
                 route_key = ex_route[1]
                 exchange = ex_route[0] or router.exchange or self.exchange
                 self._add_publisher(route_key, exchange=exchange, func_wrapper=func)
+        for queue_name, funcs in router.consumers.items():
+            for func in funcs:
+                self._add_consumer(queue_name, func)
