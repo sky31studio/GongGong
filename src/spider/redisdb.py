@@ -3,10 +3,10 @@ from redis.asyncio import Redis as AsyncRedis
 
 
 class RedisDict(dict[str, object]):
-    def __init__(self, redis: Redis | AsyncRedis, expiry: int = 3600):
+    def __init__(self, redis: Redis | AsyncRedis, expire: int = None):
         super().__init__()
         self.redis = redis
-        self.expiry = expiry
+        self.expire = expire
 
     def __iter__(self):
         return iter(self.redis.keys())
@@ -24,9 +24,10 @@ class RedisDict(dict[str, object]):
         return value
 
     def __setitem__(self, key, value):
-        if self.expiry:
-            self.redis.set(key, value, ex=self.expiry)
-        self.redis.set(key, value)
+        if self.expire:
+            self.redis.set(key, value, ex=self.expire)
+        else:
+            self.redis.set(key, value)
 
     def __delitem__(self, key):
         if not self.redis.delete(key):
