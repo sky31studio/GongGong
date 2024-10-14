@@ -2,8 +2,8 @@
 
 from pika.adapters.blocking_connection import BlockingConnection
 
-from mq.consumer import MQConsumer, MQConsumerWrapper
-from mq.publisher import MQPublisher, PublisherWrapper, MQPublisherWrapper
+from spider.mq.consumer import MQConsumer, MQConsumerWrapper
+from spider.mq.publisher import MQPublisher, MQPublisherWrapper
 
 
 class MQRouter(MQConsumer, MQPublisher):
