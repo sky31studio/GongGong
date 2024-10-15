@@ -35,7 +35,8 @@ class StudentConsumer:
         self.handler = handler
         self.kv_db = kv_db
         self.publish_channel = publish_channel
-        self.__name__ = config.queue
+        self.__name__ = handler.__class__.__name__
+        self.logger = logging.getLogger(self.config.queue)
 
     def __call__(self, channel, method, properties, body):
         info_package = InformationPackage[Session].model_validate_json(body)
@@ -59,7 +60,7 @@ class StudentConsumer:
     def save(self, info_package: InformationPackage[Session], result):
         """数据保存"""
         key = f"{self.config.key}.{info_package.student_id}"
-        logging.getLogger(self.config.queue).info(f'{info_package.student_id} saved to db: {result}')
+        self.logger.info(f'{info_package.student_id} saved to db: {result}')
         if isinstance(result, BaseModel):
             self.kv_db[key] = result.model_dump_json()
         else:
@@ -67,7 +68,7 @@ class StudentConsumer:
 
     def failed(self, info: InformationPackage[Session], e: Exception):
         """执行失败的处理"""
-        logging.getLogger(self.config.queue).error(f'{info.student_id} failed', exc_info=e)
+        self.logger.error(f'{info.student_id} failed', exc_info=e)
         failed = FailedInfo(student_id=info.student_id, queue_name=self.config.queue, session_id=info.data.session_id,
                             error=str(e))
         failed_info = InformationPackage[FailedInfo](student_id=info.student_id, data=failed,
@@ -85,5 +86,5 @@ class StudentConsumer:
                 return self.handler.handler(session=session)
             except Exception as e:
                 exc = e
-                logging.getLogger(self.config.queue).debug(f'{info.student_id} failed，retry {i + 1} times')
+                self.logger.debug(f'{info.student_id} failed，retry {i + 1} times')
         raise exc
