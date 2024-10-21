@@ -5,7 +5,7 @@ from xtu_ems.ems.handler import EMSPoster
 from xtu_ems.ems.model import ClassroomStatus
 
 
-class TodayClassroomStatusGetter(EMSPoster):
+class TodayClassroomStatusGetter(EMSPoster[list[ClassroomStatus]]):
     """查询教室状态"""
 
     def _data(self):

@@ -17,7 +17,7 @@ _data = {
 }
 
 
-class StudentTranscriptGetter(Handler):
+class StudentTranscriptGetter(Handler[ScoreBoard]):
     """通过教务系统获取成绩单，并且解析成结构化数据"""
 
     def handler(self, session: Session, *args, **kwargs):

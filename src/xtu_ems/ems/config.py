@@ -51,6 +51,15 @@ class XTUEMSConfig(metaclass=BaseConfig):
     XTU_EMS_TEACHING_WEEKS_URL: str = XTU_EMS_BASE_URL + "/jxzl/jxzl_query"
     """湘潭大学教务系统-当前学期教学周历地址"""
 
+    XTU_EMS_SESSION_VALIDATOR_URL: str = XTU_EMS_BASE_URL + "/ggly/ysgg_query"
+    """湘潭大学教务系统-session验证地址
+
+    该部分的选择要求：
+
+    - 当Session正常时标题不能为 《湘潭大学综合教务管理系统-湘潭大学》
+    - 请求尽可能快，否则可能会对性能造成影响
+    """
+
     @staticmethod
     def get_current_term():
         """获取当前学期"""

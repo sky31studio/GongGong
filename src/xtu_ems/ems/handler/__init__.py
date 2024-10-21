@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Generic, TypeVar
 
 import requests
 from bs4 import BeautifulSoup
@@ -7,10 +8,13 @@ from xtu_ems.ems.config import RequestConfig
 from xtu_ems.ems.ems import QZEducationalManageSystem
 from xtu_ems.ems.session import Session
 
+_R = TypeVar("_R")
+"""返回值类型"""
 
-class Handler(ABC):
+
+class Handler(ABC, Generic[_R]):
     @abstractmethod
-    def handler(self, session: Session, *args, **kwargs):
+    def handler(self, session: Session, *args, **kwargs) -> _R:
         pass
 
     def _get_session(self, session: Session):
@@ -19,8 +23,8 @@ class Handler(ABC):
         return sess
 
 
-class EMSGetter(Handler):
-    def handler(self, session: Session, *args, **kwargs):
+class EMSGetter(Handler[_R]):
+    def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
         with self._get_session(session) as ems_session:
             resp = ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
@@ -36,8 +40,8 @@ class EMSGetter(Handler):
         pass
 
 
-class EMSPoster(EMSGetter):
-    def handler(self, session: Session, *args, **kwargs):
+class EMSPoster(EMSGetter[_R]):
+    def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
         with self._get_session(session) as ems_session:
             resp = ems_session.post(self.url(), self._data(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
