@@ -1,11 +1,9 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List
 
-# 1、创建初始 Pydantic模型/模式
 from pydantic import BaseModel
 
 
-# 1、创建初始 Pydantic模型/模式
 class UserBase(BaseModel):
     id: str
     email: str=''
@@ -33,7 +31,7 @@ class InactivateUser(BaseModel):
     id: str
     que_name:str=''
 
-# 2、创建用于读取/返回的Pydantic模型/模式
+# 创建用于读取/返回的Pydantic模型/模式
 
 class ReturnUser(BaseModel):
     status:int

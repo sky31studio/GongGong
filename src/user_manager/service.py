@@ -3,11 +3,11 @@ from datetime import datetime
 from aioredis import Redis
 from sqlalchemy.orm import Session
 
-from user_manager import database, schemas
-from user_manager.config import RedisConfig
-from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem
-from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
+from src.xtu_ems.ems.account import AuthenticationAccount
+from src.xtu_ems.ems.ems import QZEducationalManageSystem
+from src.xtu_ems.ems.handler.get_student_info import StudentInfoGetter
+from src.user_manager import database, schemas
+from src.user_manager.config import RedisConfig
 
 
 def get_user(db: Session, user_id: str):
@@ -18,11 +18,9 @@ def get_user(db: Session, user_id: str):
 def get_user_by_id(db: Session, id: str):
     return db.query(database.User).filter(database.User.id == id).first()
 
-
 # 单例模式
 handler = StudentInfoGetter()
 ems = QZEducationalManageSystem()
-
 
 # 通过 ID 激活账户
 def activate_user_by_id(db: Session, id: str, password: str):
