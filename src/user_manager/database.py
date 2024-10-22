@@ -3,10 +3,11 @@ from contextlib import asynccontextmanager
 import aioredis
 from aioredis import Redis
 from fastapi import FastAPI
+from sqlalchemy import Boolean, Column, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from user_manager.config import DatabaseConfig, RedisConfig
+from src.user_manager.config import DatabaseConfig, RedisConfig
 
 # 设置数据库的URL
 SQLALCHEMY_DATABASE_URL = DatabaseConfig.USER_MANAGER_DATABASE_URL
@@ -20,7 +21,28 @@ engine = create_engine(
 SessionLocal = sessionmaker(bind=engine)
 # 映射
 Base = declarative_base()
-# 1、创建数据库表
+
+
+# User继承Base类
+class User(Base):
+    # 表名
+    __tablename__ = "users"
+
+    id = Column(String(50), primary_key=True, index=True)
+    password = Column(String(50))
+    email = Column(String(50), unique=True, index=True)
+    is_active = Column(Boolean, default=True)
+    last_time = Column(DateTime)
+    reg_time = Column(DateTime)
+    name = Column(String(50))
+    gender = Column(String(50))
+    birthday = Column(String(50))
+    major = Column(String(50))
+    class_ = Column(String(50))
+    entrance_day = Column(String(50))
+    college = Column(String(50))
+
+
 Base.metadata.create_all(bind=engine)
 
 

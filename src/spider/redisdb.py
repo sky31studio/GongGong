@@ -1,9 +1,11 @@
+from typing import Union
+
 from redis import Redis
 from redis.asyncio import Redis as AsyncRedis
 
 
 class RedisDict(dict[str, object]):
-    def __init__(self, redis: Redis | AsyncRedis, expiry: int = 3600):
+    def __init__(self, redis: Union[Redis, AsyncRedis], expiry: int = 3600):
         super().__init__()
         self.redis = redis
         self.expiry = expiry

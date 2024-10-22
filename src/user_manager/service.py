@@ -3,30 +3,33 @@ from datetime import datetime
 from aioredis import Redis
 from sqlalchemy.orm import Session
 
-from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem
-from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
-from . import models, schemas
-from .config import RedisConfig
+from src.xtu_ems.ems.account import AuthenticationAccount
+from src.xtu_ems.ems.ems import QZEducationalManageSystem
+from src.xtu_ems.ems.handler.get_student_info import StudentInfoGetter
+from src.user_manager import database, schemas
+from src.user_manager.config import RedisConfig
 
 
 def get_user(db: Session, user_id: str):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+    return db.query(database.User).filter(database.User.id == user_id).first()
 
 
 # 通过 ID 查询单个用户
 def get_user_by_id(db: Session, id: str):
-    return db.query(models.User).filter(models.User.id == id).first()
+    return db.query(database.User).filter(database.User.id == id).first()
 
+# 单例模式
+handler = StudentInfoGetter()
+ems = QZEducationalManageSystem()
 
 # 通过 ID 激活账户
 def activate_user_by_id(db: Session, id: str, password: str):
     account = AuthenticationAccount(username=id, password=password)
-    ems = QZEducationalManageSystem()
+
     db_user = get_user(db, id)
     try:
         session = ems.login(account)
-        handler = StudentInfoGetter()
+
         resp = handler.handler(session).dict()
 
         for key, value in resp.items():
@@ -56,13 +59,13 @@ def deactivate_user_by_id(db: Session, id: str):
 
 # 查询多个用户
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.User).offset(skip).limit(limit).all()
+    return db.query(database.User).offset(skip).limit(limit).all()
 
 
 def create_user(db: Session, user: schemas.User):
     # 使用您的数据创建一个 SQLAlchemy 模型实例。
-    db_user = models.User(
-        **{**user.model_dump(), 'is_active': False, 'reg_time': datetime.now(), 'last_time': datetime.now()})
+    db_user = database.User(
+        **{**user.dict(), 'is_active': False, 'reg_time': datetime.now(), 'last_time': datetime.now()})
 
     # 使用add来将该实例对象添加到您的数据库。
     db.add(db_user)
@@ -73,6 +76,7 @@ def create_user(db: Session, user: schemas.User):
 
 
 async def cache_session(rd: Redis, session_id: str, user_id: str):
+    """将session缓存在redis中"""
     print(session_id)
     # 添加数据，3600秒后自动清除
     await rd.setex(name=RedisConfig.SESS_PREFIX + user_id, time=RedisConfig.EXPIRE_TIME, value=session_id)
