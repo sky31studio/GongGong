@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-with open('requirements.txt', 'r') as f:
+with open('requirements.ems.txt', 'r') as f:
     requirements = [req.strip() for req in f.readlines()]
 print(requirements)
 setup(
@@ -11,7 +11,7 @@ setup(
     packages=find_packages('src'),
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "License :: OSI Approved :: Apache License",
         "Operating System :: OS Independent",
     ],
     package_dir={'xtu_ems': 'src/xtu_ems'},

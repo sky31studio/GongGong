@@ -1,10 +1,9 @@
 """pika 监听装饰器"""
-import threading
 
 from pika.adapters.blocking_connection import BlockingConnection
 
 from spider.mq.consumer import MQConsumer, MQConsumerWrapper
-from spider.mq.publisher import MQPublisher, PublisherWrapper, MQPublisherWrapper
+from spider.mq.publisher import MQPublisher, MQPublisherWrapper
 
 
 class MQRouter(MQConsumer, MQPublisher):
@@ -39,28 +38,30 @@ class MQ(MQRouter):
         channel.basic_qos(prefetch_count=self.prefetch_count)
         return channel
 
+    def _get_consumer_channel(self, func):
+        """获取消费者MQ连接"""
+        return self._get_channel(self._get_consumer_channel)
+
     def _add_consumer(self, queue_name, func_wrapper):
         """添加监听函数，在初始化监听函数时调用"""
+        if queue_name in self.consumers:
+            self.consumers[queue_name].append(func_wrapper)
         func_wrapper = self._build_consumer_wrapper(func_wrapper.func, queue_name)
         super()._add_consumer(queue_name, func_wrapper)
-        channel = self._get_channel(func_wrapper.func)
-        # channel.queue_declare(queue=queue_name)
+        channel = self._get_consumer_channel(func_wrapper.func)
         channel.basic_consume(queue=queue_name,
                               on_message_callback=func_wrapper)
-        self._run_listener(queue_name, func_wrapper, channel)
 
-    def _run_listener(self, queue_name, func, channel):
+    def _run_listener(self, channel):
         """运行监听函数"""
-        thr = threading.Thread(target=lambda: channel.start_consuming())
-        f_t = (func, thr)
-        if queue_name not in self.listener:
-            self.listener[queue_name] = [f_t]
-        else:
-            self.listener[queue_name].append(f_t)
-        thr.start()
+        channel.start_consuming()
+
+    def run(self):
+        """运行MQ"""
+        self._run_listener(self._get_consumer_channel(None))
 
     def _build_consumer_wrapper(self, func, queue_name, tracked=None):
-        return MQConsumerWrapper(func, queue_name, self._get_channel(func), self.logger,
+        return MQConsumerWrapper(func, queue_name, self._get_consumer_channel(func), self.logger,
                                  tracked or self.tracked)
 
     def _build_publisher_wrapper(self, func, route_key, exchange):
