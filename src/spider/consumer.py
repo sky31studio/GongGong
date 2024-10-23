@@ -39,6 +39,9 @@ class StudentConsumer:
         self.logger = logging.getLogger(self.config.queue)
 
     def __call__(self, channel, method, properties, body):
+        self.run(channel, method, properties, body)
+
+    def run(self, channel, method, properties, body):
         info_package = InformationPackage[Session].model_validate_json(body)
         time = info_package.update_time + self.config.interval
         if datetime.now() < time:
