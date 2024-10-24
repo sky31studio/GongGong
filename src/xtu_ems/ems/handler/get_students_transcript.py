@@ -48,18 +48,18 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
             if not row[1]:
                 self._parse_score(scoreboard, row[0])
                 continue
-            s = Score(name=row[0],
-                      type=row[1],
-                      credit=(row[2]),
-                      score=row[3],
-                      term=row[4])
+            s = Score(name=row[0].strip(),
+                      type=row[1].strip(),
+                      credit=(row[2].strip()),
+                      score=row[3].strip(),
+                      term=row[4].strip())
             scoreboard.scores.append(s)
             if row[5]:
-                s = Score(name=row[5],
-                          type=row[6],
-                          credit=row[7],
-                          score=row[8],
-                          term=row[9])
+                s = Score(name=row[5].strip(),
+                          type=row[6].strip(),
+                          credit=row[7].strip(),
+                          score=row[8].strip(),
+                          term=row[9].strip())
                 scoreboard.scores.append(s)
         return scoreboard
 
@@ -75,7 +75,7 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
                 total[chunks[1]] = chunks[2]
                 continue
             k, vs = chunks
-            total[k] = vs
+            total[k.strip()] = vs.strip()
         for k, v in total.items():
             match k:
                 case '总学分要求':

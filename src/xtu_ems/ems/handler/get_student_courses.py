@@ -44,10 +44,10 @@ class StudentCourseGetter(EMSGetter[CourseTable]):
             else:
                 break
 
-        course = CourseInfo(name=course_name,
-                            teacher=teacher.text,
-                            weeks=weeks.text.split('(')[0],
-                            classroom=classroom.text,
+        course = CourseInfo(name=course_name.strip(),
+                            teacher=teacher.text.strip(),
+                            weeks=weeks.text.split('(')[0].strip(),
+                            classroom=classroom.text.strip(),
                             start_time=start,
                             duration=duration,
                             day=_get_day_name(day))

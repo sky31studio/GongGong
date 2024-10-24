@@ -26,14 +26,14 @@ def _extra_student_info(soup: BeautifulSoup) -> StudentBasicInfo:
             if key not in student_info:
                 student_info[key] = value
     info = {
-        'student_id': student_info.get('学号'),
-        'name': student_info.get('姓名'),
-        'college': student_info.get('院系', ''),
-        'major': student_info.get('专业', ''),
-        'class_': student_info.get('班级', ''),
-        'gender': student_info.get('性别', ''),
-        'birthday': student_info.get('出生日期', ''),
-        'entrance_day': student_info.get('入学日期', ''),
+        'student_id': student_info.get('学号').strip(),
+        'name': student_info.get('姓名').strip(),
+        'college': student_info.get('院系', '').strip(),
+        'major': student_info.get('专业', '').strip(),
+        'class_': student_info.get('班级', '').strip(),
+        'gender': student_info.get('性别', '').strip(),
+        'birthday': student_info.get('出生日期', '').strip(),
+        'entrance_day': student_info.get('入学日期', '').strip(),
     }
     return StudentBasicInfo(**info)
 

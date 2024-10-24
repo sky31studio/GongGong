@@ -10,7 +10,7 @@ class SessionValidator(EMSGetter[bool]):
 
     def _extra_info(self, soup: BeautifulSoup):
         """校务系统并不会对于无效的会话并不会重定向，二试直接返回一个登陆页面，我们可以通过返回的页面标题来判断会话是否有效"""
-        return soup.find('title').text != "湘潭大学综合教务管理系统-湘潭大学"
+        return soup.find('title').text.strip() != "湘潭大学综合教务管理系统-湘潭大学"
 
     def url(self):
         return XTUEMSConfig.XTU_EMS_SESSION_VALIDATOR_URL
