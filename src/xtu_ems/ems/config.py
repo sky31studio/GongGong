@@ -1,4 +1,6 @@
 """配置类，这些配置可以被这个包下的所有代码公用，同时修改配置不影响业务逻辑"""
+from datetime import datetime
+
 from xtu_ems.basic import BaseConfig
 
 
@@ -14,7 +16,6 @@ class RequestConfig(metaclass=BaseConfig):
 
     XTU_EMS_REQUEST_TIMEOUT: int = 10
     """请求超时时间"""
-
 
 
 class XTUEMSConfig(metaclass=BaseConfig):
@@ -50,5 +51,22 @@ class XTUEMSConfig(metaclass=BaseConfig):
     XTU_EMS_TEACHING_WEEKS_URL: str = XTU_EMS_BASE_URL + "/jxzl/jxzl_query"
     """湘潭大学教务系统-当前学期教学周历地址"""
 
-    XTU_EMS_CURRENT_TIME: str = "2024-2025-1"
-    """湘潭大学教务系统-系统当前学期"""
+    XTU_EMS_SESSION_VALIDATOR_URL: str = XTU_EMS_BASE_URL + "/ggly/ysgg_query"
+    """湘潭大学教务系统-session验证地址
+
+    该部分的选择要求：
+
+    - 当Session正常时标题不能为 《湘潭大学综合教务管理系统-湘潭大学》
+    - 请求尽可能快，否则可能会对性能造成影响
+    """
+
+    @staticmethod
+    def get_current_term():
+        """获取当前学期"""
+        date = datetime.now()
+        year = date.year
+        month = date.month
+        if month < 8:
+            return f"{year - 1}-{year}-{1 if month < 2 else 2}"
+        else:
+            return f"{year}-{year + 1}-{2 if month < 2 else 1}"

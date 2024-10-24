@@ -85,8 +85,6 @@ class MQPublisherWrapper(PublisherWrapper):
         if not logger:
             logger = logging.getLogger('MQ-PUBLISHER')
         self.logger = logger
-        if exchange != '':
-            channel.exchange_declare(exchange)
         self.route_key = route_key
 
     def _publish_around_process(self, *args, **kwargs):

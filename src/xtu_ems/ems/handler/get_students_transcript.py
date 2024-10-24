@@ -1,10 +1,10 @@
 from io import BytesIO
 
-import pandas as pd
 from pdfplumber import PDF
 
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
-from xtu_ems.ems.handler import Handler
+from xtu_ems.ems.ems import QZEducationalManageSystem
+from xtu_ems.ems.handler import Handler, _R
 from xtu_ems.ems.model import ScoreBoard, Score
 from xtu_ems.ems.session import Session
 
@@ -17,25 +17,32 @@ _data = {
 }
 
 
-class StudentTranscriptGetter(Handler):
+class StudentTranscriptGetter(Handler[ScoreBoard]):
     """通过教务系统获取成绩单，并且解析成结构化数据"""
+
+    async def async_handler(self, session: Session, *args, **kwargs) -> _R:
+        from aiohttp import ClientSession
+
+        async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
+            resp = await ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            if resp.status == 200:
+                pdf = PDF(BytesIO(await resp.content.read()))
+                return self._extra_info(pdf)
 
     def handler(self, session: Session, *args, **kwargs):
         with self._get_session(session) as ems_session:
-            resp = ems_session.post(self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            resp = ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code == 200:
                 pdf = PDF(BytesIO(resp.content))
-                for page in pdf.pages:
-                    for table in page.extract_tables():
-                        df = pd.DataFrame(table)
-                        return self._extra_info(df)
+                return self._extra_info(pdf)
 
     def url(self):
         return XTUEMSConfig.XTU_EMS_STUDENT_TRANSCRIPT_URL
 
-    def _extra_info(self, df: pd.DataFrame):
+    def _extra_info(self, pdf):
+        table = pdf.pages[0].extract_table()
         scoreboard = ScoreBoard()
-        for row in df.values:
+        for row in table:
             if not isinstance(row[0], str) or row[0] == "课程名称":
                 continue
             if not row[1]:
