@@ -1,0 +1,5 @@
+-r requirements.ems.txt
+aioredis～=2.0.2
+fastapi>=0.115.3
+sqlalchemy~=2.0.30
+sphinx~=7.3.7

@@ -16,6 +16,16 @@ def get_user(db: Session, user_id: str):
 
 # 通过 ID 查询单个用户
 def get_user_by_id(db: Session, id: str):
+    """
+    通过id查询用户
+
+    Args:
+        db: 数据库连接
+        id: 用户id
+
+    Returns
+        如果用户存在则返回用户信息，否则返回None
+    """
     return db.query(database.User).filter(database.User.id == id).first()
 
 
@@ -26,13 +36,24 @@ ems = QZEducationalManageSystem()
 
 # 通过 ID 激活账户
 def activate_user_by_id(db: Session, id: str, password: str):
+    """
+    通过id激活用户
+
+    Args:
+        db: 数据库连接
+        id: 用户id
+        password: 用户密码
+
+    Returns:
+        如果用户存在则返回用户信息，否则返回None
+    """
     account = AuthenticationAccount(username=id, password=password)
 
     db_user = get_user(db, id)
     try:
         session = ems.login(account)
 
-        resp = handler.handler(session).dict()
+        resp = handler.handler(session).model_dump()
 
         for key, value in resp.items():
             setattr(db_user, key, value.replace("\xa0", ""))
@@ -48,8 +69,16 @@ def activate_user_by_id(db: Session, id: str, password: str):
     return None
 
 
-# 通过 ID 失活账户
 def deactivate_user_by_id(db: Session, id: str):
+    """
+    通过id失活用户
+    Args:
+        db: 数据库连接
+        id: 用户id
+
+    Returns:
+        如果用户存在则返回用户信息，否则返回None
+    """
     db_user = get_user(db, id)
     if db_user:
         db_user.is_active = False
@@ -59,28 +88,50 @@ def deactivate_user_by_id(db: Session, id: str):
         return None  # 如果用户不存在，返回 None 或抛出异常
 
 
-# 查询多个用户
 def get_users(db: Session, skip: int = 0, limit: int = 100):
+    """
+    查询多个用户
+
+    Args:
+        db: 数据库连接
+        skip: 跳过的用户数量
+        limit: 限制返回的用户数量
+
+    Returns:
+        包含用户信息的列表
+
+    """
     return db.query(database.User).offset(skip).limit(limit).all()
 
 
 def create_user(db: Session, user: schemas.User):
-    # 使用您的数据创建一个 SQLAlchemy 模型实例。
-    db_user = database.User(
-        **{**user.dict(), 'is_active': False, 'reg_time': datetime.now(), 'last_time': datetime.now()})
+    """
+    创建用户
 
-    # 使用add来将该实例对象添加到您的数据库。
+    Args:
+        db: 数据库连接
+        user: 用户信息
+
+    Returns:
+        包含用户信息的列表
+    """
+    db_user = database.User(
+        **{**user.model_dump(), 'is_active': False, 'reg_time': datetime.now(), 'last_time': datetime.now()})
+
     db.add(db_user)
 
-    # 使用commit来对数据库的事务提交（以便保存它们）。
     db.commit()
     return db_user
 
 
 async def cache_session(rd: Redis, session_id: str, user_id: str):
-    """将session缓存在redis中"""
-    print(session_id)
-    # 添加数据，3600秒后自动清除
-    await rd.setex(name=RedisConfig.SESS_PREFIX + user_id, time=RedisConfig.EXPIRE_TIME, value=session_id)
-    value = await rd.get(name='vvv')
-    print(value)
+    """
+    缓存session
+    Args:
+        rd: redis 连接
+        session_id: session值
+        user_id: 用户id
+    """
+    await rd.setex(name=f'{RedisConfig.SESS_PREFIX}{user_id}',
+                   time=RedisConfig.EXPIRE_TIME,
+                   value=session_id)

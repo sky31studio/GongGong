@@ -11,13 +11,6 @@ from user_manager.service import deactivate_user_by_id, cache_session, get_user,
 app = FastAPI(lifespan=lifespan)
 
 
-# # 获取用户列表
-# @app.get("/users", response_model=schemas.ReturnUsers)
-# def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-#     users = crud.get_users(db, skip=skip, limit=limit)
-#     return schemas.ReturnUsers(status=1, data=users)
-
-
 @app.get("/users/{user_id}", response_model=schemas.ReturnUser)
 def read_user(user_id: str, db: Session = Depends(get_db)):
     """获取单个用户信息"""
@@ -42,7 +35,7 @@ async def login_user(user: schemas.LoginUser, db: Session = Depends(get_db)):
 
     else:
         # 用户不存在 创建用户
-        db_user = create_user(db=db, user=schemas.User(**user.dict()))
+        db_user = create_user(db=db, user=schemas.User(**user.model_dump()))
     # 激活账号并更新账户信息
     session_id = activate_user_by_id(db, id=user.id, password=user.password)
     if session_id:
