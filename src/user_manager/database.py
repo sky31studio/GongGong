@@ -7,7 +7,7 @@ from sqlalchemy import Boolean, Column, String, DateTime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-from src.user_manager.config import DatabaseConfig, RedisConfig
+from user_manager.config import DatabaseConfig, RedisConfig
 
 # 设置数据库的URL
 SQLALCHEMY_DATABASE_URL = DatabaseConfig.USER_MANAGER_DATABASE_URL
@@ -25,6 +25,7 @@ Base = declarative_base()
 
 # User继承Base类
 class User(Base):
+    """用户表"""
     # 表名
     __tablename__ = "users"
 
@@ -49,6 +50,7 @@ Base.metadata.create_all(bind=engine)
 # 2、创建依赖项
 # Dependency
 def get_db():
+    """获取数据库会话"""
     # 我们需要每个请求有一个独立的数据库会话/连接（SessionLocal），
     db = SessionLocal()
     # 我们的依赖项将创建一个新的 SQLAlchemy SessionLocal，
@@ -61,11 +63,13 @@ def get_db():
 
 
 async def create_redis() -> Redis:
+    """新建redis数据库连接"""
     return await aioredis.from_url(RedisConfig.USER_MANAGER_REDIS_URL, decode_responses=True)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """将redis绑定在fastapi上"""
     app.state.redis = await create_redis()
     # print("init redis success")
     yield
