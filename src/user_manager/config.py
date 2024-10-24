@@ -7,7 +7,6 @@ class DatabaseConfig(metaclass=BaseConfig):
     USER_MANAGER_DATABASE_URL: str = "mysql+pymysql://root:123456@localhost:3306/user_manager"
     """数据库基础地址"""
 
-
 class RedisConfig(metaclass=BaseConfig):
     """Redis数据库链接"""
     USER_MANAGER_REDIS_URL: str = "redis://:@localhost/0?encoding=utf-8"
