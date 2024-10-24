@@ -5,12 +5,12 @@ from xtu_ems.ems.handler import EMSPoster
 from xtu_ems.ems.model import ExamInfo
 
 
-class StudentExamGetter(EMSPoster):
+class StudentExamGetter(EMSPoster[list[ExamInfo]]):
     """获取学生考试信息"""
 
     def _data(self):
         return {
-            "xnxqid": XTUEMSConfig.XTU_EMS_CURRENT_TIME
+            "xnxqid": XTUEMSConfig.get_current_term()
         }
 
     def _extra_info(self, soup: BeautifulSoup):

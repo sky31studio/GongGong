@@ -5,7 +5,7 @@ from xtu_ems.ems.handler import EMSGetter
 from xtu_ems.ems.model import CourseInfo, CourseTable, _get_day_name
 
 
-class StudentCourseGetter(EMSGetter):
+class StudentCourseGetter(EMSGetter[CourseTable]):
 
     def url(self):
         return XTUEMSConfig.XTU_EMS_STUDENT_COURSE_URL
