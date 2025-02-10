@@ -1,5 +1,7 @@
 package account
 
+import "time"
+
 // Status 定义了账户状态的类型。
 type Status int
 
@@ -39,6 +41,7 @@ type SimpleAccountImpl struct {
 	StaticToken string
 	Password    string
 	status      Status
+	CreateTime  time.Time
 }
 
 func (s *SimpleAccountImpl) GetPassword() string {

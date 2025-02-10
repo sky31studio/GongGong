@@ -158,9 +158,7 @@ func (a *AccountGetter) GetInfo(w http.ResponseWriter, r *http.Request) {
 	account, err := AccountService.GetAccountByToken(token)
 	w.Header().Set("Content-Type", "application/json")
 	var resp any
-	if account == nil {
-		return
-	} else if account.Status() != account2.Normal {
+	if err != nil || account == nil || account.Status() != account2.Normal {
 		resp = map[string]any{
 			"active": false,
 		}

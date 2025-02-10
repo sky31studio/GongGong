@@ -3,6 +3,7 @@ package account
 import (
 	"cached_proxy/utils"
 	"log"
+	"time"
 )
 
 // Service 定义了账户服务的接口。
@@ -55,6 +56,7 @@ func (s *ServiceImpl) newAccount(username string, password string) (Account, err
 		Password:    password,
 		StaticToken: token,
 		status:      Normal,
+		CreateTime:  time.Now(),
 	}
 	return account, nil
 }
