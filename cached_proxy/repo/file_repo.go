@@ -12,6 +12,10 @@ type FileRepo[K interface{ string }, V any] struct {
 	path          string
 }
 
+func (f *FileRepo[K, V]) Len() int {
+	return f.memRepository.Len()
+}
+
 // NewFileRepos 创建文件存储
 func NewFileRepos[K interface{ string }, V any](path string) *FileRepo[K, V] {
 	repo := &FileRepo[K, V]{

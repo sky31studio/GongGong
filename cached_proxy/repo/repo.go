@@ -7,11 +7,16 @@ type KVRepo[K string, V any] interface {
 	Get(key K) (value V, found bool)
 	Set(key K, data V)
 	Delete(key K) bool
+	Len() int
 }
 
 type MemRepo[K string, V any] struct {
 	items map[K]V      // 集合
 	mu    sync.RWMutex // 读写锁
+}
+
+func (m *MemRepo[K, V]) Len() int {
+	return len(m.items)
 }
 
 func (m *MemRepo[K, V]) Delete(key K) bool {
@@ -42,6 +47,10 @@ func (m *MemRepo[K, V]) Set(key K, data V) {
 
 type StaticRepo[K string, V any] struct {
 	value V
+}
+
+func (s *StaticRepo[K, V]) Len() int {
+	return 1
 }
 
 func NewStaticRepo[K string, V any]() *StaticRepo[K, V] {
