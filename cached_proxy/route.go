@@ -331,10 +331,12 @@ func convertCourseToEvent(course feign.Course, calendar *feign.TeachingCalendar,
 	event.SetSummary(summary)
 	event.SetDescription(desc)
 	event.SetLocation(location)
-	date := calendar.StartTime().AddDate(0, 0, (start-1)*7+feign.Days2Int[course.Day])
+	date := calendar.StartTime().AddDate(0, 0, (start-1)*7+feign.Days2Int[course.Day]-1)
 	tb := timetable.EventTimes
-	startTime := tb[course.StartTime-1].StartTime.AddDate(date.Year(), int(date.Month()), date.Day())
-	endTime := tb[course.StartTime+course.Duration-2].EndTime.AddDate(date.Year(), int(date.Month()), date.Day())
+	startAt := tb[course.StartTime-1].StartTime
+	endAt := tb[course.StartTime+course.Duration-2].EndTime
+	startTime := time.Date(date.Year(), date.Month(), date.Day(), startAt.Hour(), startAt.Minute(), startAt.Second(), 0, time.Local)
+	endTime := time.Date(date.Year(), date.Month(), date.Day(), endAt.Hour(), endAt.Minute(), endAt.Second(), 0, time.Local)
 	event.SetStart(startTime)
 	event.SetEnd(endTime)
 	rrule := &icalendar.IcsRepeatRule{}
