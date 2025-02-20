@@ -44,19 +44,19 @@ class StudentBasicInfo(BaseModel):
 class CourseInfo(BaseModel):
     """课程基本信息"""
 
-    name: str
+    name: str = ""
     """课程名称"""
-    teacher: str
+    teacher: str = ""
     """老师"""
-    classroom: str
+    classroom: str = ""
     """教室"""
-    weeks: str
+    weeks: str = ""
     """周次(节次)"""
-    start_time: int
+    start_time: int = 1
     """开始上课节次"""
-    duration: int
+    duration: int = 2
     """结束上课节次"""
-    day: str
+    day: str = "Monday"
     """星期"""
 
 
