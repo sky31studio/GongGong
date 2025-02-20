@@ -311,7 +311,7 @@ func CoursesConvertCalendar(list *feign.CourseList, calendar *feign.TeachingCale
 				start = timetable.SepWeeks
 			}
 			if end >= timetable.SepWeeks {
-				event := convertCourseToEvent(course, calendar, timetable.SepWeeks, end, timetable.SufTimeTable)
+				event := convertCourseToEvent(course, calendar, start, end, timetable.SufTimeTable)
 				ical.AddEvent(event)
 			} else {
 				event := convertCourseToEvent(course, calendar, start, end, timetable.PreTimeTable)
