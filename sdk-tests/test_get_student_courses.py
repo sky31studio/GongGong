@@ -1,11 +1,10 @@
 from unittest import TestCase
 from unittest.async_case import IsolatedAsyncioTestCase
 
-from common_data import session, username
-from xtu_ems.ems.config import RequestConfig, XTUEMSConfig
+from common_data import session
 from xtu_ems.ems.handler import SessionInvalidException
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
-from xtu_ems.ems.model import InformationPackage
+from xtu_ems.ems.model import CourseList
 from xtu_ems.ems.session import Session
 
 
@@ -20,15 +19,13 @@ class TestStudentCourseGetter(TestCase):
     def test_extra_student_courses(self):
         """测试解析课程"""
         handler = StudentCourseGetter()
-        url = handler.url()
-        with handler.get_session(session) as ems_session:
-            resp = ems_session.post(url=url, data={"xnxq01id": XTUEMSConfig.get_current_term()},
-                                    timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+        with open('course_page.html') as f:
+            resp = f.read()
         import bs4
-        li = handler._extra_info(bs4.BeautifulSoup(resp.text, "html.parser"))
-        info = InformationPackage(student_id=username, data=li)
-        print(info.model_dump_json(indent=4))
-        self.assertIsNotNone(li)
+        li = handler._extra_info(bs4.BeautifulSoup(resp, "html.parser"))
+        with open('course_result.json') as f:
+            expected_course_list = CourseList.model_validate_json(f.read())
+            self.assertEqual(li, expected_course_list)
 
     def test_handler_with_invalid_session(self):
         """测试无效的session"""

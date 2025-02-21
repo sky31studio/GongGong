@@ -58,7 +58,7 @@ class StudentCourseGetter(EMSPoster[CourseList]):
                     case "老师":
                         course.teacher = c.text.strip()
                     case "周次(节次)":
-                        course.weeks = c.text.strip()
+                        course.weeks = c.text.split('(')[0].strip()
                     case _:
                         pass
         if course.name is not "":
