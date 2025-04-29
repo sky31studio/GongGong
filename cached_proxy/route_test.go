@@ -69,8 +69,8 @@ func TestExamsConvertCalendar(t *testing.T) {
 					Exams: []feign.Examination{
 						{
 							Name:      "Test",
-							StartTime: "2025-02-17 16:30:00",
-							EndTime:   "2025-02-17 18:00:00",
+							StartTime: "2025-02-17T16:30:00",
+							EndTime:   "2025-02-17T18:00:00",
 							Location:  "Test",
 							Type:      "考查",
 						},

@@ -232,7 +232,7 @@ func (c *CalendarGetter[V]) GetInfo(w http.ResponseWriter, r *http.Request) {
 
 }
 
-const ExamTimeLayout = "2006-01-02 15:04:05"
+const ExamTimeLayout = "2006-01-02T15:04:05"
 
 func ExamsConvertCalendar(exams *feign.ExamList, _ *feign.TeachingCalendar) icalendar.Calendar {
 	if exams == nil || exams.Exams == nil {
