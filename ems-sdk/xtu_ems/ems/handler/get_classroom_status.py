@@ -16,7 +16,7 @@ class TodayClassroomStatusGetter(EMSPoster[CategoryClassroomBoard]):
     def _extra_info(self, soup: BeautifulSoup):
         classroom = soup.find(id="dataList").find_all('tr')[2:]
         classroom = [self._extra_classroom_info(row) for row in classroom]
-        return ClassroomBoard(classrooms=classroom).to_category()
+        return ClassroomBoard(classrooms=classroom, date=datetime.now().date()).to_category()
 
     def _extra_classroom_info(self, row: BeautifulSoup) -> ClassroomStatus:
         """从表格的某一行中提取教室的信息"""

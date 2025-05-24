@@ -213,7 +213,7 @@ class CategoryClassroomBoard(BaseModel):
     """分类的教室信息"""
     classrooms: dict[str, list[ClassroomStatus]]
     """教室信息"""
-    date: ddate = datetime.now().date()
+    date: ddate
     """日期"""
 
 
@@ -222,7 +222,7 @@ class ClassroomBoard(BaseModel):
 
     classrooms: list[ClassroomStatus] = field(default_factory=list)
     """教室信息"""
-    date: ddate = datetime.now().date()
+    date: ddate
     """日期"""
 
     def to_category(self):
