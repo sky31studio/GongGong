@@ -19,12 +19,20 @@ class TeachingCalendarGetter(EMSPoster[TeachingCalendar]):
         start_year = int(term_id.text.split('-')[0]) - 1 + int(term_id.text.split('-')[2])
         table = soup.find(id='kbtable')
         start_month = 1
+        weeks = len(table.find_all('tr')) - 2
         for td in table.find_all('td'):
             if '月' in td.text:
                 sec_month = td.text.replace('月', '')
-                start_month = int(sec_month) - 1
+                if td.previous_element.text == '1':
+                    start_month = int(sec_month)
+                    start_day = 1
+                    start: date = date(year=start_year, month=start_month, day=start_day)
+                    return TeachingCalendar(start=start,
+                                            weeks=weeks,
+                                            term_id=term_id.text)
+                else:
+                    start_month = int(sec_month) - 1
                 break
-        weeks = len(table.find_all('tr')) - 2
         start_day = int(table.find_all('td')[1].text)
         start: date = date(year=start_year, month=start_month, day=start_day)
         return TeachingCalendar(start=start,
