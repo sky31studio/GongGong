@@ -15,7 +15,7 @@ class HttpSessionHolder:
         """
         初始化 HttpSessionHolder 实例
         
-        :param cookies: HTTP cookies
+        :param cookies: aiohttp 的 CookieJar 对象，默认为空
         """
         self.cookies = cookies if cookies is not None else CookieJar()
 
