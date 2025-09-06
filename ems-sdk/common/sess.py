@@ -1,6 +1,6 @@
 from http.cookies import Morsel
 
-from aiohttp import CookieJar
+from aiohttp import ClientSession, CookieJar
 
 
 
@@ -17,7 +17,7 @@ class HttpSessionHolder:
         
         :param cookies: aiohttp 的 CookieJar 对象，默认为空
         """
-        self.cookies = cookies if cookies is not None else CookieJar()
+        self.cookie_jar = cookies if cookies is not None else CookieJar()
 
     def to_dict(self) -> list[dict]:
         """
@@ -25,7 +25,7 @@ class HttpSessionHolder:
         
         :return: 包含回话信息的字典
         """
-        return [cookie.__dict__ for cookie in self.cookies]
+        return [cookie.__dict__ for cookie in self.cookie_jar]
 
     @classmethod
     def from_dict(cls, cookies: list[dict]) -> "HttpSessionHolder":
@@ -42,3 +42,21 @@ class HttpSessionHolder:
             jar.update_cookies({morsel.key: morsel})
 
         return cls(cookies=jar)
+    
+    @classmethod
+    def from_aiohttp_session(cls, session: ClientSession) -> "HttpSessionHolder":
+        """
+        从 aiohttp 的 ClientSession 创建回话持有者实例
+        
+        :param session: aiohttp 的 ClientSession 对象
+        :return: SessionHolder 实例
+        """
+        return cls(cookies=session.cookie_jar)
+    
+    def to_aiohttp_session(self) -> ClientSession:
+        """
+        将回话持有者转换为 aiohttp 的 ClientSession
+        
+        :return: aiohttp 的 ClientSession 对象
+        """
+        return ClientSession(cookie_jar=self.cookie_jar)

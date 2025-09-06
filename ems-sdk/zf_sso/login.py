@@ -94,7 +94,7 @@ async def login(username: str, password: str) -> SessionHolder:
         ) as response:
             if response.status == 200:
                 logger.info("Login successful.")
-                return SessionHolder(cookies=session.cookie_jar)
+                return SessionHolder.from_aiohttp_session(session)
             else:
                 logger.error("Failed to access ticket URL.")
                 raise ServiceUnavailableException("login failed")
