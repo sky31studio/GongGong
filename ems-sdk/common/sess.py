@@ -1,7 +1,7 @@
 from http.cookies import Morsel
 
 from aiohttp import ClientSession, CookieJar
-
+from aiohttp.abc import AbstractCookieJar
 
 
 class HttpSessionHolder:
@@ -10,11 +10,11 @@ class HttpSessionHolder:
 
     主要用于存储HTTP回话的相关信息, 提供序列化和反序列化功能
     """
-    
-    def __init__(self, cookies: CookieJar = None):
+
+    def __init__(self, cookies: AbstractCookieJar = None):
         """
         初始化 HttpSessionHolder 实例
-        
+
         :param cookies: aiohttp 的 CookieJar 对象，默认为空
         """
         self.cookie_jar = cookies if cookies is not None else CookieJar()
@@ -22,7 +22,7 @@ class HttpSessionHolder:
     def to_dict(self) -> list[dict]:
         """
         将回话信息转换为字典格式
-        
+
         :return: 包含回话信息的字典
         """
         return [cookie.__dict__ for cookie in self.cookie_jar]
@@ -31,7 +31,7 @@ class HttpSessionHolder:
     def from_dict(cls, cookies: list[dict]) -> "HttpSessionHolder":
         """
         从字典格式创建回话持有者实例
-        
+
         :param cookies: 包含回话信息的字典
         :return: SessionHolder 实例
         """
@@ -42,21 +42,21 @@ class HttpSessionHolder:
             jar.update_cookies({morsel.key: morsel})
 
         return cls(cookies=jar)
-    
+
     @classmethod
     def from_aiohttp_session(cls, session: ClientSession) -> "HttpSessionHolder":
         """
         从 aiohttp 的 ClientSession 创建回话持有者实例
-        
+
         :param session: aiohttp 的 ClientSession 对象
         :return: SessionHolder 实例
         """
         return cls(cookies=session.cookie_jar)
-    
+
     def to_aiohttp_session(self) -> ClientSession:
         """
         将回话持有者转换为 aiohttp 的 ClientSession
-        
+
         :return: aiohttp 的 ClientSession 对象
         """
         return ClientSession(cookie_jar=self.cookie_jar)

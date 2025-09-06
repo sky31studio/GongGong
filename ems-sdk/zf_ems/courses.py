@@ -1,8 +1,6 @@
-import logging
-from common.sess import HttpSessionHolder
-from aiohttp import ClientSession
-from zf_ems.config import *
 from common.exception import *
+from common.sess import HttpSessionHolder
+from zf_ems.config import *
 
 
 async def get_courses(session: HttpSessionHolder, year, term) -> list[dict]:
