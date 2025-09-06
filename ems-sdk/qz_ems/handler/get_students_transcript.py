@@ -1,14 +1,13 @@
 from functools import cache
 from io import BytesIO
 
-from bs4 import BeautifulSoup
 from pdfminer.pdfparser import PDFSyntaxError
 from pdfplumber import PDF
 
-from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
-from xtu_ems.ems.handler import Handler, _R, EMSPoster, logger, SessionInvalidException
-from xtu_ems.ems.model import ScoreBoard, Score, RankInfo
-from xtu_ems.ems.session import Session
+from common.model import *
+from common.model import ScoreBoard
+from qz_ems.config import XTUEMSConfig
+from qz_ems.handler.abs import *
 
 _data = {
     "xs0101id": "",
@@ -36,9 +35,9 @@ def extract_field(text, start_key, end_key=None):
 class StudentTranscriptGetter(Handler[ScoreBoard]):
     """通过教务系统获取成绩单，并且解析成结构化数据"""
 
-    async def async_handler(self, session: Session, *args, **kwargs) -> _R:
+    async def async_handler(self, session: HttpSessionHolder, *args, **kwargs) -> ScoreBoard | None:
 
-        async with self.get_async_session(session) as ems_session:
+        async with get_async_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT,
                                           allow_redirects=False)
@@ -55,25 +54,7 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
                 except PDFSyntaxError:
                     logger.exception(f'[{self.__class__.__name__}] 解析成绩单失败')
                     raise SessionInvalidException()
-
-    def handler(self, session: Session, *args, **kwargs):
-        with self.get_session(session) as ems_session:
-            logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
-            resp = ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT,
-                                    allow_redirects=False)
-            if resp.status_code == 200:
-                try:
-                    pdf = PDF(BytesIO(resp.content))
-                    return self._extra_info(pdf)
-                except AttributeError:
-                    logger.exception(f'[{self.__class__.__name__}] 解析成绩单失败')
-                    raise SessionInvalidException()
-                except IndexError:
-                    logger.exception(f'[{self.__class__.__name__}] 解析成绩单失败')
-                    raise SessionInvalidException()
-                except PDFSyntaxError:
-                    logger.exception(f'[{self.__class__.__name__}] 解析成绩单失败')
-                    raise SessionInvalidException()
+            return None
 
     def url(self):
         return XTUEMSConfig.XTU_EMS_STUDENT_TRANSCRIPT_URL

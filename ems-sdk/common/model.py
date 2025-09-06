@@ -5,7 +5,7 @@ from typing import Tuple, Literal, TypeVar, Union
 
 from pydantic import BaseModel
 
-from xtu_ems.ems.config import classroom_prefix_category
+from qz_ems.config import classroom_prefix_category
 
 T = TypeVar('T')
 

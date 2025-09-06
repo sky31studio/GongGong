@@ -1,15 +1,14 @@
 from datetime import date
 
-from bs4 import BeautifulSoup
-
-from xtu_ems.ems.config import XTUEMSConfig
-from xtu_ems.ems.handler import EMSPoster
-from xtu_ems.ems.model import TeachingCalendar
+from common.model import *
+from common.term import get_current_term
+from qz_ems.config import XTUEMSConfig
+from qz_ems.handler.abs import *
 
 
 class TeachingCalendarGetter(EMSPoster[TeachingCalendar]):
     def _data(self):
-        return {'xnxq01id': XTUEMSConfig.get_current_term()}
+        return {'xnxq01id': get_current_term()}
 
     def url(self):
         return XTUEMSConfig.XTU_EMS_TEACHING_WEEKS_URL

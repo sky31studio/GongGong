@@ -1,8 +1,6 @@
-from bs4 import BeautifulSoup
-
-from xtu_ems.ems.config import XTUEMSConfig
-from xtu_ems.ems.handler import EMSGetter
-from xtu_ems.ems.model import StudentBasicInfo
+from common.model import *
+from qz_ems.config import XTUEMSConfig
+from qz_ems.handler.abs import *
 
 
 def _extra_student_info(soup: BeautifulSoup) -> StudentBasicInfo:
