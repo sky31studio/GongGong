@@ -10,11 +10,12 @@ from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
 
 from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
-    SessionInvalidException
+    SessionInvalidException, QzAccountNotFoundException
 from common.sess import HttpSessionHolder
-from qz_ems.handler import TeachingCalendarGetter, StudentRankGetterForCompulsory, StudentRankGetter, \
+from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentInfoGetter, StudentExamGetter, \
     TodayClassroomStatusGetter, TomorrowClassroomStatusGetter, AssignedClassroomStatusGetter
+from zf_ems.calendar import get_calendar
 from zf_ems.courses import get_courses
 
 api = FastAPI()
@@ -47,7 +48,7 @@ major_total_rank_getter = StudentRankGetter().async_handler
 major_compulsory_rank_getter = StudentRankGetterForCompulsory().async_handler
 """主修必修排名获取"""
 
-calendar_getter = TeachingCalendarGetter().async_handler
+calendar_getter = get_calendar
 """教学周历获取"""
 
 T = TypeVar("T")
@@ -110,6 +111,8 @@ async def login(username: str = Body(description="学号"), password: str = Body
     except AccountDisabledException as e:
         logger.warning(f"【{username}】登陆时账户被禁用")
         return Resp.account_disabled("账户被禁用")
+    except QzAccountNotFoundException as e:
+        logger.warning(f"【{username}】登陆时强智账户未找到")
     except Exception as e:
         logger.exception(f"【{username}】登陆时未知错误")
         return Resp.error("未知错误")
