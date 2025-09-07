@@ -17,7 +17,7 @@ class HttpSessionHolder:
 
         :param cookies: aiohttp 的 CookieJar 对象，默认为空
         """
-        self.cookie_jar = cookies if cookies is not None else CookieJar()
+        self.cookie_jar: CookieJar = cookies if cookies is not None else CookieJar()
 
     def to_dict(self) -> list[dict]:
         """
@@ -25,7 +25,16 @@ class HttpSessionHolder:
 
         :return: 包含回话信息的字典
         """
-        return [cookie.__dict__ for cookie in self.cookie_jar]
+        cookie_list = []
+        for cookie in self.cookie_jar:
+            cookie_list.append({
+                "key": cookie.key,
+                "value": cookie.value,
+                "coded_val": cookie.coded_value,
+                "host": cookie["domain"],
+                "path": cookie["path"],
+            })
+        return cookie_list
 
     @classmethod
     def from_dict(cls, cookies: list[dict]) -> "HttpSessionHolder":
@@ -38,7 +47,9 @@ class HttpSessionHolder:
         jar = CookieJar()
         for cookie in cookies:
             morsel = Morsel()
-            morsel.__dict__ = cookie
+            morsel.set(cookie["key"], cookie["value"], cookie["coded_val"])
+            morsel["domain"] = cookie["host"]
+            morsel["path"] = cookie["path"]
             jar.update_cookies({morsel.key: morsel})
 
         return cls(cookies=jar)
@@ -60,3 +71,31 @@ class HttpSessionHolder:
         :return: aiohttp 的 ClientSession 对象
         """
         return ClientSession(cookie_jar=self.cookie_jar)
+
+    @classmethod
+    def from_token(cls, token: str) -> "HttpSessionHolder":
+        """
+        从token字符串反序列化为HttpSessionHolder对象
+
+        :param token: 通过to_token方法生成的字符串
+        :return: HttpSessionHolder对象
+        """
+        import json
+        import base64
+
+        json_str = base64.urlsafe_b64decode(token.encode()).decode()
+        cookies = json.loads(json_str)
+        return cls.from_dict(cookies)
+
+    def to_token(self) -> str:
+        """
+        将HttpSessionHolder对象序列化为字符串
+
+        :return: 可通过from_token方法反序列化的字符串
+        """
+        import json
+        import base64
+
+        json_str = json.dumps(self.to_dict())
+        token = base64.urlsafe_b64encode(json_str.encode()).decode()
+        return token

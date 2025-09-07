@@ -1,4 +1,5 @@
 from common.model import *
+from common.term import get_current_term
 from qz_ems.config import XTUEMSConfig
 from qz_ems.handler.abs import *
 
@@ -27,7 +28,7 @@ class StudentExamGetter(EMSPoster[ExamInfoList]):
 
     def _data(self):
         return {
-            "xnxqid": XTUEMSConfig.get_current_term()
+            "xnxqid": get_current_term()
         }
 
     def _extra_info(self, soup: BeautifulSoup):

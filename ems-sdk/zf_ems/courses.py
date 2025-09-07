@@ -1,6 +1,9 @@
+import datetime
+
 from common.exception import *
 from common.model import CourseList, CourseInfo
 from common.sess import HttpSessionHolder
+from common.term import get_term_year, get_term_id
 from zf_ems.config import *
 
 
@@ -27,7 +30,7 @@ def parse_course_time(courses_list) -> CourseList:
     return CourseList(courses=courses)
 
 
-async def get_courses(session: HttpSessionHolder, year, term) -> CourseList:
+async def get_courses(session: HttpSessionHolder, year=None, term=None) -> CourseList:
     """
     获取课程列表
 
@@ -36,6 +39,10 @@ async def get_courses(session: HttpSessionHolder, year, term) -> CourseList:
     :param term: 学期，第一学期为3, 第二学期为12
     :return: 课程列表，每个课程是一个字典
     """
+    date = datetime.datetime.now()
+    if year is None or term is None:
+        year = get_term_year(date)
+        term = get_term_id(date)
     async with session.to_aiohttp_session() as http_session:
         payload = {
             "xnm": year,

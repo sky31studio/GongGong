@@ -6,6 +6,7 @@ from pdfplumber import PDF
 
 from common.model import *
 from common.model import ScoreBoard
+from common.term import get_current_term
 from qz_ems.config import XTUEMSConfig
 from qz_ems.handler.abs import *
 
@@ -179,7 +180,7 @@ class StudentRankGetter(EMSPoster[RankInfo]):
     @property
     def terms(self):
         if self._terms is None:
-            return get_all_terms(XTUEMSConfig.get_current_term())
+            return get_all_terms(get_current_term())
         return self._terms
 
     def _data(self):
