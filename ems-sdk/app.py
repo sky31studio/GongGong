@@ -1,59 +1,53 @@
+import binascii
 import logging
+from typing import Generic, TypeVar, Callable, Any, Awaitable
+
 import requests.exceptions
 from aiohttp import ClientConnectorDNSError
 from fastapi import FastAPI, Body, Header
 from fastapi.params import Path
 from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
-from typing import Generic, TypeVar
 
-from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem, InvalidCaptchaException, InvalidAccountException, \
-    UninitializedPasswordException
-from xtu_ems.ems.handler import Handler, SessionInvalidException
-from xtu_ems.ems.handler.get_classroom_status import TodayClassroomStatusGetter, TomorrowClassroomStatusGetter, \
-    AssignedClassroomStatusGetter
-from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
-from xtu_ems.ems.handler.get_student_exam import StudentExamGetter
-from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
-from xtu_ems.ems.handler.get_students_transcript import StudentTranscriptGetter, \
-    StudentTranscriptGetterForAcademicMinor, StudentRankGetter, StudentRankGetterForCompulsory
-from xtu_ems.ems.handler.get_teaching_calendar import TeachingCalendarGetter
-from xtu_ems.ems.session import Session
+from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
+    SessionInvalidException
+from common.sess import HttpSessionHolder
+from qz_ems.handler import TeachingCalendarGetter, StudentRankGetterForCompulsory, StudentRankGetter, \
+    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentInfoGetter, StudentExamGetter, \
+    TodayClassroomStatusGetter, TomorrowClassroomStatusGetter, AssignedClassroomStatusGetter
+from zf_ems.courses import get_courses
 
 api = FastAPI()
-
-ems = QZEducationalManageSystem()
 """校务系统"""
 
-today_classroom_status_getter = TodayClassroomStatusGetter()
+today_classroom_status_getter = TodayClassroomStatusGetter().async_handler
 """当日教室状态获取"""
 
-tomorrow_classroom_status_getter = TomorrowClassroomStatusGetter()
+tomorrow_classroom_status_getter = TomorrowClassroomStatusGetter().async_handler
 """次日教室状态获取"""
 
-courses_table_getter = StudentCourseGetter()
+courses_table_getter = get_courses
 """课程表获取"""
 
-exams_getter = StudentExamGetter()
+exams_getter = StudentExamGetter().async_handler
 """考试安排获取"""
 
-info_getter = StudentInfoGetter()
+info_getter = StudentInfoGetter().async_handler
 """基本信息获取"""
 
-major_scores_getter = StudentTranscriptGetter()
+major_scores_getter = StudentTranscriptGetter().async_handler
 """主修成绩获取"""
 
-minor_scores_getter = StudentTranscriptGetterForAcademicMinor()
+minor_scores_getter = StudentTranscriptGetterForAcademicMinor().async_handler
 """辅修成绩获取"""
 
-major_total_rank_getter = StudentRankGetter()
+major_total_rank_getter = StudentRankGetter().async_handler
 """主修总排名获取"""
 
-major_compulsory_rank_getter = StudentRankGetterForCompulsory()
+major_compulsory_rank_getter = StudentRankGetterForCompulsory().async_handler
 """主修必修排名获取"""
 
-calendar_getter = TeachingCalendarGetter()
+calendar_getter = TeachingCalendarGetter().async_handler
 """教学周历获取"""
 
 T = TypeVar("T")
@@ -91,50 +85,56 @@ class Resp(BaseModel, Generic[T]):
         """未知错误"""
         return PlainTextResponse(status_code=500, content=msg)
 
+    @staticmethod
+    def account_disabled(msg: str = "account disabled"):
+        """账户被禁用"""
+        return PlainTextResponse(status_code=423, content=msg)
+
 
 @api.post("/login")
 async def login(username: str = Body(description="学号"), password: str = Body(description="密码")):
     logger.debug(f"【{username}】开始登陆")
+    from zf_sso.login import login as sso_login
+    from zf_ems.login import sso_auth as zf_sso_auth
+    from qz_ems.login import sso_auth as qz_sso_auth
     try:
-        session = await ems.async_login(AuthenticationAccount(username, password),
-                                        retry_time=3)
-        logger.info(f"【{username}】登陆成功")
-        return Resp.success(msg=f"{username}-登陆成功", data=session)
-    except InvalidCaptchaException as captcha_exc:
-        logger.warning(f"【{username}】登陆时验证码识别失败")
-        return Resp.ems_request_failed(f"【{username}】登陆时验证码识别错误")
-    except InvalidAccountException as account_exc:
-        logger.warning(f"【{username}】登陆失败，账户或者密码错误")
-        return Resp.unauthorized(f"【{username}】登陆失败，账户或者密码错误")
-    except UninitializedPasswordException as exc:
-        logger.warning(f"【{username}】登陆失败，账户未初始化")
-        return Resp.not_initialized(f"【{username}】登陆失败，需要先在教务系统中认证")
-    except requests.exceptions.Timeout as exc:
-        logger.warning(f"【{username}】登陆时超时")
+        session_holder = await sso_login(username, password)
+        session_holder = await zf_sso_auth(session_holder)
+        session_holder = await qz_sso_auth(session_holder)
+    except ServiceUnavailableException as e:
+        logger.exception(f"【{username}】登陆时远程连接错误")
         return Resp.ems_request_failed("远程连接错误")
-    except ClientConnectorDNSError as e:
-        logger.exception(f"无法访问服务")
-        return Resp.ems_request_failed("远程无法访问")
+    except InvalidUsernameOrPasswordException as e:
+        logger.warning(f"【{username}】登陆时用户名或密码错误")
+        return Resp.unauthorized("用户名或密码错误")
+    except AccountDisabledException as e:
+        logger.warning(f"【{username}】登陆时账户被禁用")
+        return Resp.account_disabled("账户被禁用")
     except Exception as e:
-        logger.exception(f"【{username}】登陆时错误")
+        logger.exception(f"【{username}】登陆时未知错误")
         return Resp.error("未知错误")
+    logger.info(f"【{username}】登陆成功")
+    return Resp.success(data=session_holder.to_token())
 
 
-async def _run_handler(handler: Handler, token: str):
-    session = Session(token=token)
+async def _run_handler(handler: Callable[[HttpSessionHolder], Awaitable[Any]], token: str):
     try:
-        return Resp.success(data=await handler.async_handler(session))
+        session = HttpSessionHolder.from_token(token)
+        return Resp.success(data=await handler(session))
     except requests.exceptions.Timeout as e:
-        logger.exception(f"【{handler.__class__.__name__}】执行时超时")
+        logger.exception(f"【{handler.__name__}】执行时超时")
         return Resp.ems_request_failed("远程连接错误")
     except SessionInvalidException as e:
-        logger.warning(f"【{handler.__class__.__name__}】执行时session失效")
+        logger.warning(f"【{handler.__name__}】执行时session失效")
         return Resp.unauthorized("session失效")
     except ClientConnectorDNSError as e:
-        logger.exception(f"【{handler.__class__.__name__}】无法访问服务")
+        logger.exception(f"【{handler.__name__}】无法访问服务")
         return Resp.ems_request_failed("远程无法访问")
+    except binascii.Error as e:
+        logger.warning(f"【{handler.__name__}】执行时token错误")
+        return Resp.unauthorized("token错误")
     except Exception as e:
-        logger.exception(f"【{handler.__class__.__name__}】执行时错误")
+        logger.exception(f"【{handler.__name__}】执行时错误")
         return Resp.error("未知错误")
 
 
@@ -184,7 +184,7 @@ async def get_classroom(
     elif day == "1" or day == "tomorrow":
         return await _run_handler(tomorrow_classroom_status_getter, token)
     else:
-        return await _run_handler(AssignedClassroomStatusGetter(int(day)), token)
+        return await _run_handler(AssignedClassroomStatusGetter(int(day)).async_handler, token)
 
 
 @api.get("/compulsory/rank")
