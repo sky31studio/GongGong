@@ -114,7 +114,7 @@ async def login(username: str = Body(description="学号"), password: str = Body
         logger.exception(f"【{username}】登陆时未知错误")
         return Resp.error("未知错误")
     logger.info(f"【{username}】登陆成功")
-    return Resp.success(data=session_holder.to_token())
+    return Resp.success(data={"token": session_holder.to_token()})
 
 
 async def _run_handler(handler: Callable[[HttpSessionHolder], Awaitable[Any]], token: str):
