@@ -47,6 +47,9 @@ async def sso_auth(session: HttpSessionHolder) -> HttpSessionHolder:
             # 查看请求最后一次重定向的 URL
             final_url = str(response.url)
             logger.info(f"Final redirected URL: {final_url}")
+            content = await response.text()
+            if "此用户信息不存在,非法登录" in content:
+                raise QzAccountNotFoundException("Account not found in QZ EMS")
             if not final_url.startswith(homepage_url_prefix):
                 raise SessionInvalidException("Session invalid, please re-authenticate")
             return HttpSessionHolder.from_aiohttp_session(http_session)
