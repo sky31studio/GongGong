@@ -88,6 +88,10 @@ func (c *SpiderClientImpl) sendRequest(r *http.Request) (*http.Response, error) 
 		// 服务不可用
 		log.Printf("ServiceUnavailable: method=%s, url=%s", r.Method, r.URL)
 		return nil, fmt.Errorf("service unavailable")
+	case 423:
+		// 账户被锁定
+		log.Printf("Account Locked: method=%s, url=%s", r.Method, r.URL)
+		return nil, fmt.Errorf("account locked")
 	default:
 		// 其他错误
 		log.Printf("Unkown Error: method=%s, url=%s, status=%d", r.Method, r.URL, response.StatusCode)

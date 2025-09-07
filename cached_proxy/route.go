@@ -51,6 +51,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 	if err.Error() == "unauthorized" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	} else if err.Error() == "account locked" {
+		http.Error(w, "Account Locked", 423)
 	} else {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
