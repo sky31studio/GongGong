@@ -13,10 +13,11 @@ from common.exception import ServiceUnavailableException, InvalidUsernameOrPassw
     SessionInvalidException, QzAccountNotFoundException
 from common.sess import HttpSessionHolder
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
-    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentInfoGetter, StudentExamGetter, \
+    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
     TodayClassroomStatusGetter, TomorrowClassroomStatusGetter, AssignedClassroomStatusGetter
 from zf_ems.calendar import get_calendar
 from zf_ems.courses import get_courses
+from zf_ems.personal_info import get_student_info
 
 api = FastAPI()
 """校务系统"""
@@ -33,7 +34,7 @@ courses_table_getter = get_courses
 exams_getter = StudentExamGetter().async_handler
 """考试安排获取"""
 
-info_getter = StudentInfoGetter().async_handler
+info_getter = get_student_info
 """基本信息获取"""
 
 major_scores_getter = StudentTranscriptGetter().async_handler

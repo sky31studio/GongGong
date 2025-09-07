@@ -1,6 +1,5 @@
 from qz_ems.handler.get_classroom_status import *
 from qz_ems.handler.get_student_exam import StudentExamGetter
-from qz_ems.handler.get_student_info import StudentInfoGetter
 from qz_ems.handler.get_students_transcript import StudentTranscriptGetter, StudentRankGetter, \
     StudentRankGetterForCompulsory, StudentTranscriptGetterForAcademicMinor
 
@@ -9,7 +8,6 @@ __all__ = [
     "TomorrowClassroomStatusGetter",
     "AssignedClassroomStatusGetter",
     "StudentExamGetter",
-    "StudentInfoGetter",
     "StudentTranscriptGetter",
     "StudentRankGetter",
     "StudentRankGetterForCompulsory",
