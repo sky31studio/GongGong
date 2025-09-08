@@ -5,7 +5,7 @@ from aiohttp import ClientSession
 from common.encrypt import rsa_encrypt
 from common.exception import *
 from common.sess import HttpSessionHolder as SessionHolder
-from zf_sso.config import key_url, login_url, login_success_url_prefix
+from zf_sso.config import key_url, login_url, login_success_url_prefix, modify_password_url_prefix
 
 logger = logging.getLogger(__name__)
 
@@ -63,19 +63,15 @@ async def login(username: str, password: str) -> SessionHolder:
             "authcode": "",
             "mobileCode": "",
         }
-        login_result = False
+        # 执行登录请求
         async with session.post(
             login_url,
             data=payload,
             allow_redirects=False,
         ) as response:
-            # 日志输出
             if response.status == 302 and "Location" in response.headers:
-                ticket_url = response.headers["Location"]
-                logger.info(f"Redirect Location: {response.headers['Location']}")
-                login_result = response.headers["Location"].startswith(
-                    login_success_url_prefix
-                )
+                redirect_url = response.headers["Location"] or ""
+                logger.info(f"Redirect Location: {redirect_url}")
             elif response.status == 200:
                 raise InvalidUsernameOrPasswordException(username)
             elif response.status == 403:
@@ -88,11 +84,14 @@ async def login(username: str, password: str) -> SessionHolder:
                     f"Login failed: status code {response.status}, headers {response.headers}"
                 )
                 raise ServiceUnavailableException("login failed")
-        if not login_result or not ticket_url:
+        # 判断重定向URL
+        if redirect_url.startswith(modify_password_url_prefix):
+            raise UninitializedAccountException(username, "Please change password first.")
+        elif not redirect_url.startswith(login_success_url_prefix):
             raise ServiceUnavailableException("ticket URL not found")
         # 访问ticket_url，完成登录
         async with session.get(
-            ticket_url,
+            redirect_url,
         ) as response:
             if response.status == 200:
                 logger.info("Login successful.")

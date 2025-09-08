@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
 
 from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
-    SessionInvalidException, QzAccountNotFoundException
+    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException
 from common.sess import HttpSessionHolder
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
@@ -114,6 +114,9 @@ async def login(username: str = Body(description="学号"), password: str = Body
         return Resp.account_disabled("账户被禁用")
     except QzAccountNotFoundException as e:
         logger.warning(f"【{username}】登陆时强智账户未找到")
+    except UninitializedAccountException as e:
+        logger.warning(f"【{username}】登陆时账户未初始化")
+        return Resp.not_initialized("账户未初始化，请先登录教务系统完成认证")
     except Exception as e:
         logger.exception(f"【{username}】登陆时未知错误")
         return Resp.error("未知错误")

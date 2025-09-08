@@ -49,7 +49,9 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	if err.Error() == "unauthorized" {
+	if err.Error() == "account not initialized" {
+		http.Error(w, "Account Not Initialized", http.StatusConflict)
+	} else if err.Error() == "unauthorized" {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 	} else if err.Error() == "account locked" {
 		http.Error(w, "Account Locked", 423)

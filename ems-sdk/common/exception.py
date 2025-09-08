@@ -10,6 +10,26 @@
 """
 
 
+class UninitializedAccountException(Exception):
+    """未初始化账号异常"""
+
+    def __init__(self, account, message: str = "账号未初始化"):
+        """
+        初始化 UninitializedAccountException 实例
+
+        :param account: 账号
+        :param message: 错误信息
+        """
+        self.account = account
+        """账号"""
+        self.message = message
+        """错误信息"""
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"UninitializedAccountError: {self.message} (Account: {self.account})"
+
+
 class ServiceUnavailableException(Exception):
     """服务不可用异常"""
 

@@ -92,6 +92,10 @@ func (c *SpiderClientImpl) sendRequest(r *http.Request) (*http.Response, error) 
 		// 账户被锁定
 		log.Printf("Account Locked: method=%s, url=%s", r.Method, r.URL)
 		return nil, fmt.Errorf("account locked")
+	case 409:
+		// 账号为初始化
+		log.Printf("Account Not Initialized: method=%s, url=%s", r.Method, r.URL)
+		return nil, fmt.Errorf("account not initialized")
 	default:
 		// 其他错误
 		log.Printf("Unkown Error: method=%s, url=%s, status=%d", r.Method, r.URL, response.StatusCode)
