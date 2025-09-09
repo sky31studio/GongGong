@@ -117,7 +117,7 @@ func (t *TeachingCalendar) GetTermTimeTable() TermTimeTable {
 		SufTimeTable: WinterTimeTable,
 	}
 	startTime := t.StartTime()
-	if startTime.Month() < sepTime.Month() {
+	if startTime.Month() > sepTime.Month() {
 		sepTime = summerStart
 		termTimeTable.PreTimeTable = WinterTimeTable
 		termTimeTable.SufTimeTable = SummerTimeTable
