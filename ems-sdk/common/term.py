@@ -1,7 +1,8 @@
-from datetime import datetime
+import datetime
+from datetime import date
 
 
-def get_term_year(d: datetime) -> int:
+def get_term_year(d: date) -> int:
     """
     获取当前学年
 
@@ -22,7 +23,7 @@ def get_term_year(d: datetime) -> int:
         return year
 
 
-def get_term_id(d: datetime) -> int:
+def get_term_id(d: date) -> int:
     """
     获取当前学期
 
@@ -40,5 +41,5 @@ def get_term_id(d: datetime) -> int:
 
 def get_current_term():
     """获取当前学期"""
-    d = datetime.now()
+    d = datetime.datetime.now().date()
     return f"{get_term_year(d)}-{get_term_year(d) + 1}-{get_term_id(d)}"

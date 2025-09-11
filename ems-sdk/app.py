@@ -14,18 +14,19 @@ from common.exception import ServiceUnavailableException, InvalidUsernameOrPassw
 from common.sess import HttpSessionHolder
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
-    TodayClassroomStatusGetter, TomorrowClassroomStatusGetter, AssignedClassroomStatusGetter
+    AssignedClassroomStatusGetter
 from zf_ems.calendar import get_calendar
+from zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
 from zf_ems.courses import get_courses
 from zf_ems.personal_info import get_student_info
 
 api = FastAPI()
 """校务系统"""
 
-today_classroom_status_getter = TodayClassroomStatusGetter().async_handler
+today_classroom_status_getter = get_today_classroom
 """当日教室状态获取"""
 
-tomorrow_classroom_status_getter = TomorrowClassroomStatusGetter().async_handler
+tomorrow_classroom_status_getter = get_tomorrow_classroom
 """次日教室状态获取"""
 
 courses_table_getter = get_courses
