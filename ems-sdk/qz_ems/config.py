@@ -2,8 +2,6 @@
 
 homepage_url_prefix = "http://jwxt.xtu.edu.cn/jsxsd/framework/xsMain.jsp"
 
-app_list_url = "https://portal2020.xtu.edu.cn/api/application/applicationListByKeyAndRole"
-
 classroom_prefix_category = {
     "北山": "北山阶梯",
     "尚美楼-": "尚美楼",

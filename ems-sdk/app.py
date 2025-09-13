@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
 
 from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
-    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException
+    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException, ZfAccountNotFoundException
 from common.sess import HttpSessionHolder
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
@@ -100,6 +100,7 @@ async def login(username: str = Body(description="学号"), password: str = Body
     from zf_sso.login import login as sso_login
     from zf_ems.login import sso_auth as zf_sso_auth
     from qz_ems.login import sso_auth as qz_sso_auth
+    session_holder: HttpSessionHolder = HttpSessionHolder()
     try:
         session_holder = await sso_login(username, password)
         session_holder = await zf_sso_auth(session_holder)
@@ -115,6 +116,10 @@ async def login(username: str = Body(description="学号"), password: str = Body
         return Resp.account_disabled("账户被禁用")
     except QzAccountNotFoundException as e:
         logger.warning(f"【{username}】登陆时强智账户未找到")
+        session_holder.metadata["qz_account_not_found"] = True
+    except ZfAccountNotFoundException as e:
+        logger.warning(f"【{username}】登陆时正方账户未找到")
+        session_holder.metadata["zf_account_not_found"] = True
     except UninitializedAccountException as e:
         logger.warning(f"【{username}】登陆时账户未初始化")
         return Resp.not_initialized("账户未初始化，请先登录教务系统完成认证")

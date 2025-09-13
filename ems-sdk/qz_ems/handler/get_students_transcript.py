@@ -37,7 +37,8 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
     """通过教务系统获取成绩单，并且解析成结构化数据"""
 
     async def async_handler(self, session: HttpSessionHolder, *args, **kwargs) -> ScoreBoard | None:
-
+        if session.metadata.get("qz_account_not_found"):
+            raise ServiceUnavailableException(service_name="QZ EMS", message="QZ account not found")
         async with get_async_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT,

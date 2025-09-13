@@ -11,13 +11,14 @@ class HttpSessionHolder:
     主要用于存储HTTP回话的相关信息, 提供序列化和反序列化功能
     """
 
-    def __init__(self, cookies: AbstractCookieJar = None):
+    def __init__(self, cookies: AbstractCookieJar = None, metadata: dict = None):
         """
         初始化 HttpSessionHolder 实例
 
         :param cookies: aiohttp 的 CookieJar 对象，默认为空
         """
         self.cookie_jar: CookieJar = cookies if cookies is not None else CookieJar()
+        self.metadata: dict = metadata if metadata is not None else {}
 
     def to_dict(self) -> list[dict]:
         """
@@ -25,15 +26,15 @@ class HttpSessionHolder:
 
         :return: 包含回话信息的字典
         """
-        cookie_list = []
-        for cookie in self.cookie_jar:
-            cookie_list.append({
+        cookie_list = [
+            {
                 "key": cookie.key,
                 "value": cookie.value,
                 "coded_val": cookie.coded_value,
                 "host": cookie["domain"],
                 "path": cookie["path"],
-            })
+            } for cookie in self.cookie_jar
+        ]
         return cookie_list
 
     @classmethod
@@ -85,7 +86,9 @@ class HttpSessionHolder:
 
         json_str = base64.urlsafe_b64decode(token.encode()).decode()
         cookies = json.loads(json_str)
-        return cls.from_dict(cookies)
+        session = cls.from_dict(cookies)
+        session.metadata = cookies.get("metadata", {})
+        return session
 
     def to_token(self) -> str:
         """
@@ -95,7 +98,10 @@ class HttpSessionHolder:
         """
         import json
         import base64
-
-        json_str = json.dumps(self.to_dict())
+        payload = {
+            "cookies": self.to_dict(),
+            "metadata": self.metadata
+        }
+        json_str = json.dumps(payload)
         token = base64.urlsafe_b64encode(json_str.encode()).decode()
         return token

@@ -20,7 +20,6 @@ async def sso_auth(session: HttpSessionHolder) -> HttpSessionHolder:
             logger.debug(f"Accessing application URL response status: {response.status}")
             # 查看请求最后一次重定向的 URL
             final_url = str(response.url)
-            logger.debug(f"Final redirected URL: {final_url}")
             if not final_url.startswith(homepage_url_prefix):
-                raise SessionInvalidException("Session invalid, please re-authenticate")
+                raise ZfAccountNotFoundException("Account not found in ZF EMS")
             return HttpSessionHolder.from_aiohttp_session(http_session)

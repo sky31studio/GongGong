@@ -2,7 +2,7 @@ import datetime
 
 import bs4
 
-from common.exception import SessionInvalidException
+from common.exception import SessionInvalidException, ServiceUnavailableException
 from common.model import TeachingCalendar
 from common.sess import HttpSessionHolder
 from common.term import get_current_term
@@ -41,10 +41,10 @@ async def get_calendar(session: HttpSessionHolder) -> TeachingCalendar:
     获取教学周历
 
     :param session: 已登录的 HttpSessionHolder 对象
-    :param year: 学年，例如 "2023"
-    :param term: 学期，第一学期为3, 第二学期为12
     :return: 教学周历对象
     """
+    if session.metadata.get("zf_account_not_found"):
+        raise ServiceUnavailableException(service_name="ZF EMS", message="ZF account not found")
     async with session.to_aiohttp_session() as http_session:
         async with http_session.get(
             "https://jw.xtu.edu.cn/jwglxt/xtgl/index_cxAreaFive.html?localeKey=zh_CN&gnmkdm=index",

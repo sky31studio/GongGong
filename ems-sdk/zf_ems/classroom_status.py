@@ -2,7 +2,7 @@ import asyncio
 import datetime
 import time
 
-from common.exception import SessionInvalidException
+from common.exception import SessionInvalidException, ServiceUnavailableException
 from common.model import CategoryClassroomBoard, ClassroomStatus, ClassroomBoard
 from common.sess import HttpSessionHolder
 from common.term import get_term_year, get_term_id
@@ -116,10 +116,14 @@ async def get_all_day_classroom(session: HttpSessionHolder, day: datetime.date,
 
 
 async def get_today_classroom(session: HttpSessionHolder) -> CategoryClassroomBoard:
+    if session.metadata.get("zf_account_not_found"):
+        raise ServiceUnavailableException(service_name="ZF EMS", message="ZF account not found")
     cal = await get_calendar(session)
     return await get_all_day_classroom(session, datetime.datetime.now().date(), cal.start)
 
 
 async def get_tomorrow_classroom(session: HttpSessionHolder) -> CategoryClassroomBoard:
+    if session.metadata.get("zf_account_not_found"):
+        raise ServiceUnavailableException(service_name="ZF EMS", message="ZF account not found")
     cal = await get_calendar(session)
     return await get_all_day_classroom(session, datetime.datetime.now().date() + datetime.timedelta(days=1), cal.start)

@@ -39,6 +39,8 @@ async def get_courses(session: HttpSessionHolder, year=None, term=None) -> Cours
     :param term: 学期，第一学期为3, 第二学期为12
     :return: 课程列表，每个课程是一个字典
     """
+    if session.metadata.get("zf_account_not_found"):
+        raise ServiceUnavailableException(service_name="ZF EMS", message="ZF account not found")
     date = datetime.datetime.now().date()
     if year is None or term is None:
         year = get_term_year(date)

@@ -1,5 +1,6 @@
 import logging
 
+from common.config import app_list_url
 from common.exception import *
 from common.sess import HttpSessionHolder
 from qz_ems.config import *

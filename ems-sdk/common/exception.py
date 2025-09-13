@@ -143,3 +143,21 @@ class QzAccountNotFoundException(Exception):
 
     def __str__(self):
         return f"AccountNotFoundError: {self.message}"
+
+
+class ZfAccountNotFoundException(Exception):
+    """正方教务系统中账号未找到异常"""
+
+    def __init__(self, message: str = "账号未找到"):
+        """
+        初始化 AccountNotFoundException 实例
+
+        :param message: 错误信息
+        """
+        """账号"""
+        self.message = message
+        """错误信息"""
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"AccountNotFoundError: {self.message}"

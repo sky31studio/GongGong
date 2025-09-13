@@ -4,6 +4,7 @@ from typing import Generic, TypeVar
 
 from bs4 import BeautifulSoup
 
+from common.exception import ServiceUnavailableException
 from common.sess import HttpSessionHolder
 from qz_ems.config import RequestConfig
 
@@ -37,6 +38,8 @@ class EMSGetter(Handler[_R]):
 
     async def async_handler(self, session: HttpSessionHolder, *args, **kwargs) -> _R:
         """异步获取学生信息"""
+        if session.metadata.get("qz_account_not_found"):
+            raise ServiceUnavailableException(service_name="QZ EMS", message="QZ account not found")
         async with get_async_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT,
@@ -68,6 +71,8 @@ class EMSPoster(EMSGetter[_R]):
 
     async def async_handler(self, session: HttpSessionHolder, *args, **kwargs) -> _R:
         """异步获取学生信息"""
+        if session.metadata.get("qz_account_not_found"):
+            raise ServiceUnavailableException(service_name="QZ EMS", message="QZ account not found")
         async with get_async_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=self._data(),
