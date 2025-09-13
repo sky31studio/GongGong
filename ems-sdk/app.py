@@ -10,14 +10,17 @@ from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
 
 from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
-    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException, ZfAccountNotFoundException
+    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException, ZfAccountNotFoundException, \
+    GmsAccountNotFoundException
 from common.sess import HttpSessionHolder
+from graduate_ems.courses import get_courses as gms_get_courses
+from graduate_ems.login import sso_auth as graduate_sso_auth
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
     AssignedClassroomStatusGetter
 from zf_ems.calendar import get_calendar
 from zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
-from zf_ems.courses import get_courses
+from zf_ems.courses import get_courses as zf_get_courses
 from zf_ems.personal_info import get_student_info
 
 api = FastAPI()
@@ -29,7 +32,17 @@ today_classroom_status_getter = get_today_classroom
 tomorrow_classroom_status_getter = get_tomorrow_classroom
 """次日教室状态获取"""
 
-courses_table_getter = get_courses
+
+async def dynamic_courses_getter(session: HttpSessionHolder):
+    if session.metadata.get("zf_account_not_found"):
+        #         应该是研究生
+        logger.debug("尝试使用研究生教务系统获取课程表")
+        return await gms_get_courses(session)
+    else:
+        return await zf_get_courses(session)
+
+
+courses_table_getter = dynamic_courses_getter
 """课程表获取"""
 
 exams_getter = StudentExamGetter().async_handler
@@ -101,6 +114,7 @@ async def login(username: str = Body(description="学号"), password: str = Body
     from zf_ems.login import sso_auth as zf_sso_auth
     from qz_ems.login import sso_auth as qz_sso_auth
     session_holder: HttpSessionHolder = HttpSessionHolder()
+    # 本科生教务系统登录
     try:
         session_holder = await sso_login(username, password)
         session_holder = await zf_sso_auth(session_holder)
@@ -126,9 +140,37 @@ async def login(username: str = Body(description="学号"), password: str = Body
     except Exception as e:
         logger.exception(f"【{username}】登陆时未知错误")
         return Resp.error("未知错误")
-    logger.info(f"【{username}】登陆成功")
-    return Resp.success(data={"token": session_holder.to_token()})
+    if session_holder.metadata.get("zf_account_not_found"):
+        logger.info(f"【{username}】尝试研究生教务系统")
+    else:
+        logger.info(f"本科生【{username}】登陆成功")
+        return Resp.success(data={"token": session_holder.to_token()})
 
+    # 研究生教务系统登录
+    try:
+        session_holder = await graduate_sso_auth(session_holder)
+    except ServiceUnavailableException as e:
+        logger.exception(f"【{username}】登陆时远程连接错误")
+        return Resp.ems_request_failed("远程连接错误")
+    except InvalidUsernameOrPasswordException as e:
+        logger.warning(f"【{username}】登陆时用户名或密码错误")
+        return Resp.unauthorized("用户名或密码错误")
+    except AccountDisabledException as e:
+        logger.warning(f"【{username}】登陆时账户被禁用")
+        return Resp.account_disabled("账户被禁用")
+    except GmsAccountNotFoundException as e:
+        logger.warning(f"【{username}】登陆时研究生教务账户未找到")
+        session_holder.metadata["gms_account_not_found"] = True
+    except UninitializedAccountException as e:
+        logger.warning(f"【{username}】登陆时账户未初始化")
+        return Resp.not_initialized("账户未初始化，请先登录教务系统完成认证")
+    except Exception as e:
+        logger.exception(f"【{username}】登陆时未知错误")
+        return Resp.error("未知错误")
+    logger.info(f"研究生【{username}】登陆成功")
+    session_holder.metadata["zf_account_not_found"] = True
+    session_holder.metadata["qz_account_not_found"] = True
+    return Resp.success(data={"token": session_holder.to_token()})
 
 async def _run_handler(handler: Callable[[HttpSessionHolder], Awaitable[Any]], token: str):
     try:

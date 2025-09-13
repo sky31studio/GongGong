@@ -83,10 +83,9 @@ class HttpSessionHolder:
         """
         import json
         import base64
-
         json_str = base64.urlsafe_b64decode(token.encode()).decode()
         cookies = json.loads(json_str)
-        session = cls.from_dict(cookies)
+        session = cls.from_dict(cookies["cookies"])
         session.metadata = cookies.get("metadata", {})
         return session
 

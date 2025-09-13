@@ -71,7 +71,7 @@ async def login(username: str, password: str) -> SessionHolder:
         ) as response:
             if response.status == 302 and "Location" in response.headers:
                 redirect_url = response.headers["Location"] or ""
-                logger.info(f"Redirect Location: {redirect_url}")
+                logger.debug(f"Redirect Location: {redirect_url}")
             elif response.status == 200:
                 raise InvalidUsernameOrPasswordException(username)
             elif response.status == 403:
