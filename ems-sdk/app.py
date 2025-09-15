@@ -16,8 +16,7 @@ from common.sess import HttpSessionHolder
 from graduate_ems.courses import get_courses as gms_get_courses
 from graduate_ems.login import sso_auth as graduate_sso_auth
 from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
-    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter, \
-    AssignedClassroomStatusGetter
+    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter
 from zf_ems.calendar import get_calendar
 from zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
 from zf_ems.courses import get_courses as zf_get_courses
