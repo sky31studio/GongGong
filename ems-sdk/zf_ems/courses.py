@@ -20,7 +20,27 @@ def parse_course_time(courses_list) -> CourseList:
         course_info.name = course.get("kcmc", "")
         course_info.teacher = course.get("xm", "")
         course_info.classroom = course.get("cdmc", "")
-        course_info.weeks = course.get("zcd", "").replace("周", "")
+        weeks = course.get("zcd", "").replace("周", "")
+        # 周次可能的情况： 1-5周(单),8-12周(双),13周,19-20周
+        # 需要解析成 1,3,5,8,10,12,13,19-20
+        # 先按逗号分割
+        weeks_parts = weeks.split(",")
+        parsed_weeks = []
+        for part in weeks_parts:
+            part = part.strip()
+            if part == "":
+                continue
+            if "(" in part and ")" in part:
+                range_part = part.split("(")[0]
+                if "单" in part:
+                    start, end = map(int, range_part.split("-"))
+                    parsed_weeks.extend([str(i) for i in range(start, end + 1) if i % 2 == 1])
+                elif "双" in part:
+                    start, end = map(int, range_part.split("-"))
+                    parsed_weeks.extend([str(i) for i in range(start, end + 1) if i % 2 == 0])
+            else:
+                parsed_weeks.append(part)
+        course_info.weeks = ",".join(parsed_weeks)
         jc = course.get("jc", "1-2节")
         course_info.start_time = int(jc.split("-")[0])
         course_info.duration = int(jc.split("-")[1].replace("节", "")) - course_info.start_time + 1
