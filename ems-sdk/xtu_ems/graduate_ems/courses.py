@@ -1,9 +1,9 @@
 import datetime
 
-from common.exception import *
-from common.model import CourseList, CourseInfo
-from common.sess import HttpSessionHolder
-from graduate_ems.config import get_term_code
+from xtu_ems.common.exception import *
+from xtu_ems.common.model import CourseList, CourseInfo
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.graduate_ems.config import get_term_code
 
 
 def parse_course_time(rows: list[dict]) -> CourseList:

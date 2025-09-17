@@ -1,6 +1,6 @@
 import datetime
 
-from common.term import get_term_year, get_term_id
+from xtu_ems.common.term import get_term_year, get_term_id
 
 
 def get_term_code(day: datetime.date):

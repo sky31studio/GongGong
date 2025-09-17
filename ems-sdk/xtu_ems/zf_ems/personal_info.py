@@ -1,8 +1,8 @@
 import bs4
 
-from common.exception import SessionInvalidException
-from common.model import StudentBasicInfo
-from common.sess import HttpSessionHolder
+from xtu_ems.common.exception import SessionInvalidException
+from xtu_ems.common.model import StudentBasicInfo
+from xtu_ems.common.sess import HttpSessionHolder
 
 
 def parse_personal_info(soup) -> StudentBasicInfo:

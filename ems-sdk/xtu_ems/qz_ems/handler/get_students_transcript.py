@@ -4,11 +4,10 @@ from io import BytesIO
 from pdfminer.pdfparser import PDFSyntaxError
 from pdfplumber import PDF
 
-from common.model import *
-from common.model import ScoreBoard
-from common.term import get_current_term
-from qz_ems.config import XTUEMSConfig
-from qz_ems.handler.abs import *
+from xtu_ems.common.model import *
+from xtu_ems.common.model import ScoreBoard
+from xtu_ems.common.term import get_current_term
+from xtu_ems.qz_ems.config import XTUEMSConfig
 
 _data = {
     "xs0101id": "",

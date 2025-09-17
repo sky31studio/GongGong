@@ -5,7 +5,7 @@ with open('requirements.ems.txt', 'r') as f:
 print(requirements)
 setup(
     name='xtu_ems',
-    version='0.0.1',
+    version='0.2.1',
     author='LeoTan',
     author_email='leotan-studio@foxmail.com',
     packages=find_packages(''),

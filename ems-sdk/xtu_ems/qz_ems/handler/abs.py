@@ -4,9 +4,9 @@ from typing import Generic, TypeVar
 
 from bs4 import BeautifulSoup
 
-from common.exception import ServiceUnavailableException
-from common.sess import HttpSessionHolder
-from qz_ems.config import RequestConfig
+from xtu_ems.common.exception import ServiceUnavailableException
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.qz_ems.config import RequestConfig
 
 _R = TypeVar("_R")
 """返回值类型"""

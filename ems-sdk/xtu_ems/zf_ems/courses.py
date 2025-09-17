@@ -1,10 +1,10 @@
 import datetime
 
-from common.exception import *
-from common.model import CourseList, CourseInfo
-from common.sess import HttpSessionHolder
-from common.term import get_term_year, get_term_id
-from zf_ems.config import *
+from xtu_ems.common.exception import *
+from xtu_ems.common.model import CourseList, CourseInfo
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.common.term import get_term_year, get_term_id
+from xtu_ems.zf_ems.config import *
 
 
 def parse_course_time(courses_list) -> CourseList:

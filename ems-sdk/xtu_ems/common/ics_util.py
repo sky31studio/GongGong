@@ -2,8 +2,8 @@ import time
 from datetime import date as ddate, timedelta, datetime
 from typing import Tuple
 
-from common.icalendar import BaseAlarm, BaseEvent, BaseRepeatRule
-from common.model import ExamInfo, ExamInfoList, CourseInfo, _get_day_no
+from xtu_ems.common.icalendar import BaseAlarm, BaseEvent, BaseRepeatRule
+from xtu_ems.common.model import ExamInfo, ExamInfoList, CourseInfo, _get_day_no
 
 
 class ExamIcalendarUtil:

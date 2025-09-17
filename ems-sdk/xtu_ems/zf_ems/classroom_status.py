@@ -2,11 +2,11 @@ import asyncio
 import datetime
 import time
 
-from common.exception import SessionInvalidException, ServiceUnavailableException
-from common.model import CategoryClassroomBoard, ClassroomStatus, ClassroomBoard
-from common.sess import HttpSessionHolder
-from common.term import get_term_year, get_term_id
-from zf_ems.calendar import get_calendar
+from xtu_ems.common.exception import SessionInvalidException, ServiceUnavailableException
+from xtu_ems.common.model import CategoryClassroomBoard, ClassroomStatus, ClassroomBoard
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.common.term import get_term_year, get_term_id
+from xtu_ems.zf_ems.calendar import get_calendar
 
 
 def _bits_of_list(ls: list[int]) -> int:

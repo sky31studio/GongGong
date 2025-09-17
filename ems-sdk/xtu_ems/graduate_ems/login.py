@@ -1,8 +1,8 @@
 import logging
 
-from common.config import app_list_url
-from common.exception import *
-from common.sess import HttpSessionHolder
+from xtu_ems.common.config import app_list_url
+from xtu_ems.common.exception import *
+from xtu_ems.common.sess import HttpSessionHolder
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,6 @@
-from common.model import *
-from common.term import get_current_term
-from qz_ems.config import XTUEMSConfig
-from qz_ems.handler.abs import *
+from xtu_ems.common.model import *
+from xtu_ems.common.term import get_current_term
+from xtu_ems.qz_ems.config import XTUEMSConfig
 
 
 def _extra_exam_info(row: BeautifulSoup) -> ExamInfo:

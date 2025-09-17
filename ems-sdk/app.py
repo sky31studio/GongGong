@@ -9,18 +9,19 @@ from fastapi.params import Path
 from pydantic import BaseModel
 from starlette.responses import PlainTextResponse
 
-from common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, AccountDisabledException, \
+from xtu_ems.common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, \
+    AccountDisabledException, \
     SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException, ZfAccountNotFoundException, \
     GmsAccountNotFoundException
-from common.sess import HttpSessionHolder
-from graduate_ems.courses import get_courses as gms_get_courses
-from graduate_ems.login import sso_auth as graduate_sso_auth
-from qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.graduate_ems.courses import get_courses as gms_get_courses
+from xtu_ems.graduate_ems.login import sso_auth as graduate_sso_auth
+from xtu_ems.qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
     StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter
-from zf_ems.calendar import get_calendar
-from zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
-from zf_ems.courses import get_courses as zf_get_courses
-from zf_ems.personal_info import get_student_info
+from xtu_ems.zf_ems.calendar import get_calendar
+from xtu_ems.zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
+from xtu_ems.zf_ems.courses import get_courses as zf_get_courses
+from xtu_ems.zf_ems.personal_info import get_student_info
 
 api = FastAPI()
 """校务系统"""
@@ -109,9 +110,9 @@ class Resp(BaseModel, Generic[T]):
 @api.post("/login")
 async def login(username: str = Body(description="学号"), password: str = Body(description="密码")):
     logger.debug(f"【{username}】开始登陆")
-    from zf_sso.login import login as sso_login
-    from zf_ems.login import sso_auth as zf_sso_auth
-    from qz_ems.login import sso_auth as qz_sso_auth
+    from xtu_ems.zf_sso.login import login as sso_login
+    from xtu_ems.zf_ems.login import sso_auth as zf_sso_auth
+    from xtu_ems.qz_ems.login import sso_auth as qz_sso_auth
     session_holder: HttpSessionHolder = HttpSessionHolder()
     # 本科生教务系统登录
     try:

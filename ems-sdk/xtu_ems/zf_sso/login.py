@@ -2,10 +2,10 @@ import logging
 
 from aiohttp import ClientSession
 
-from common.encrypt import rsa_encrypt
-from common.exception import *
-from common.sess import HttpSessionHolder as SessionHolder
-from zf_sso.config import key_url, login_url, login_success_url_prefix, modify_password_url_prefix
+from xtu_ems.common.encrypt import rsa_encrypt
+from xtu_ems.common.exception import *
+from xtu_ems.common.sess import HttpSessionHolder as SessionHolder
+from xtu_ems.zf_sso.config import key_url, login_url, login_success_url_prefix, modify_password_url_prefix
 
 logger = logging.getLogger(__name__)
 

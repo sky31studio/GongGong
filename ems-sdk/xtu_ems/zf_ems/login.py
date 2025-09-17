@@ -1,8 +1,8 @@
 import logging
 
-from common.exception import *
-from common.sess import HttpSessionHolder
-from zf_ems.config import *
+from xtu_ems.common.exception import *
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.zf_ems.config import *
 
 logger = logging.getLogger(__name__)
 

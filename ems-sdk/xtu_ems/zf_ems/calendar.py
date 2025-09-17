@@ -2,10 +2,10 @@ import datetime
 
 import bs4
 
-from common.exception import SessionInvalidException, ServiceUnavailableException
-from common.model import TeachingCalendar
-from common.sess import HttpSessionHolder
-from common.term import get_current_term
+from xtu_ems.common.exception import SessionInvalidException, ServiceUnavailableException
+from xtu_ems.common.model import TeachingCalendar
+from xtu_ems.common.sess import HttpSessionHolder
+from xtu_ems.common.term import get_current_term
 
 
 def parse_calendar(data) -> TeachingCalendar:
