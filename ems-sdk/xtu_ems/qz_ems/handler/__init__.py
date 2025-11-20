@@ -1,9 +1,7 @@
-from xtu_ems.qz_ems.handler.get_student_exam import StudentExamGetter
 from xtu_ems.qz_ems.handler.get_students_transcript import StudentTranscriptGetter, StudentRankGetter, \
     StudentRankGetterForCompulsory, StudentTranscriptGetterForAcademicMinor
 
 __all__ = [
-    "StudentExamGetter",
     "StudentTranscriptGetter",
     "StudentRankGetter",
     "StudentRankGetterForCompulsory",

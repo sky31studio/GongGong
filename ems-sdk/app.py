@@ -17,10 +17,11 @@ from xtu_ems.common.sess import HttpSessionHolder
 from xtu_ems.graduate_ems.courses import get_courses as gms_get_courses
 from xtu_ems.graduate_ems.login import sso_auth as graduate_sso_auth
 from xtu_ems.qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
-    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter, StudentExamGetter
+    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter
 from xtu_ems.zf_ems.calendar import get_calendar
 from xtu_ems.zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
 from xtu_ems.zf_ems.courses import get_courses as zf_get_courses
+from xtu_ems.zf_ems.exams import get_exams
 from xtu_ems.zf_ems.personal_info import get_student_info
 
 api = FastAPI()
@@ -45,7 +46,7 @@ async def dynamic_courses_getter(session: HttpSessionHolder):
 courses_table_getter = dynamic_courses_getter
 """课程表获取"""
 
-exams_getter = StudentExamGetter().async_handler
+exams_getter = get_exams
 """考试安排获取"""
 
 info_getter = get_student_info
@@ -239,7 +240,7 @@ async def get_classroom(
     elif day == "1" or day == "tomorrow":
         return await _run_handler(tomorrow_classroom_status_getter, token)
     else:
-        return await _run_handler(AssignedClassroomStatusGetter(int(day)).async_handler, token)
+        return Resp.error("日期参数错误")
 
 
 @api.get("/compulsory/rank")

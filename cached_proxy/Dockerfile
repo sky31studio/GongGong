@@ -1,4 +1,4 @@
-FROM golang AS builder
+FROM golang:1.21 AS builder
 # 设置工作目录
 WORKDIR /app
 # 复制 go.mod 和 go.sum 文件

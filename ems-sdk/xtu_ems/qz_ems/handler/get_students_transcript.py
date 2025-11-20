@@ -1,13 +1,17 @@
 from functools import cache
 from io import BytesIO
 
+from bs4 import BeautifulSoup
 from pdfminer.pdfparser import PDFSyntaxError
 from pdfplumber import PDF
 
+from xtu_ems.common.exception import ServiceUnavailableException, SessionInvalidException
 from xtu_ems.common.model import *
 from xtu_ems.common.model import ScoreBoard
+from xtu_ems.common.sess import HttpSessionHolder
 from xtu_ems.common.term import get_current_term
-from xtu_ems.qz_ems.config import XTUEMSConfig
+from xtu_ems.qz_ems.config import XTUEMSConfig, RequestConfig
+from xtu_ems.qz_ems.handler.abs import Handler, get_async_session, logger, EMSPoster
 
 _data = {
     "xs0101id": "",
