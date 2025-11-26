@@ -11,18 +11,18 @@ from starlette.responses import PlainTextResponse
 
 from xtu_ems.common.exception import ServiceUnavailableException, InvalidUsernameOrPasswordException, \
     AccountDisabledException, \
-    SessionInvalidException, QzAccountNotFoundException, UninitializedAccountException, ZfAccountNotFoundException, \
+    SessionInvalidException, UninitializedAccountException, ZfAccountNotFoundException, \
     GmsAccountNotFoundException
 from xtu_ems.common.sess import HttpSessionHolder
 from xtu_ems.graduate_ems.courses import get_courses as gms_get_courses
 from xtu_ems.graduate_ems.login import sso_auth as graduate_sso_auth
-from xtu_ems.qz_ems.handler import StudentRankGetterForCompulsory, StudentRankGetter, \
-    StudentTranscriptGetterForAcademicMinor, StudentTranscriptGetter
 from xtu_ems.zf_ems.calendar import get_calendar
 from xtu_ems.zf_ems.classroom_status import get_today_classroom, get_tomorrow_classroom
 from xtu_ems.zf_ems.courses import get_courses as zf_get_courses
 from xtu_ems.zf_ems.exams import get_exams
 from xtu_ems.zf_ems.personal_info import get_student_info
+from xtu_ems.zf_ems.transcript import get_transcript_scoreboard, empty_transcript_scoreboard, rank_getter, \
+    empty_rank_getter
 
 api = FastAPI()
 """校务系统"""
@@ -52,16 +52,16 @@ exams_getter = get_exams
 info_getter = get_student_info
 """基本信息获取"""
 
-major_scores_getter = StudentTranscriptGetter().async_handler
+major_scores_getter = get_transcript_scoreboard
 """主修成绩获取"""
 
-minor_scores_getter = StudentTranscriptGetterForAcademicMinor().async_handler
+minor_scores_getter = empty_transcript_scoreboard
 """辅修成绩获取"""
 
-major_total_rank_getter = StudentRankGetter().async_handler
+major_total_rank_getter = rank_getter
 """主修总排名获取"""
 
-major_compulsory_rank_getter = StudentRankGetterForCompulsory().async_handler
+major_compulsory_rank_getter = empty_rank_getter
 """主修必修排名获取"""
 
 calendar_getter = get_calendar
@@ -113,13 +113,11 @@ async def login(username: str = Body(description="学号"), password: str = Body
     logger.debug(f"【{username}】开始登陆")
     from xtu_ems.zf_sso.login import login as sso_login
     from xtu_ems.zf_ems.login import sso_auth as zf_sso_auth
-    from xtu_ems.qz_ems.login import sso_auth as qz_sso_auth
     session_holder: HttpSessionHolder = HttpSessionHolder()
     # 本科生教务系统登录
     try:
         session_holder = await sso_login(username, password)
         session_holder = await zf_sso_auth(session_holder)
-        session_holder = await qz_sso_auth(session_holder)
     except ServiceUnavailableException as e:
         logger.exception(f"【{username}】登陆时远程连接错误")
         return Resp.ems_request_failed("远程连接错误")
@@ -129,9 +127,6 @@ async def login(username: str = Body(description="学号"), password: str = Body
     except AccountDisabledException as e:
         logger.warning(f"【{username}】登陆时账户被禁用")
         return Resp.account_disabled("账户被禁用")
-    except QzAccountNotFoundException as e:
-        logger.warning(f"【{username}】登陆时强智账户未找到")
-        session_holder.metadata["qz_account_not_found"] = True
     except ZfAccountNotFoundException as e:
         logger.warning(f"【{username}】登陆时正方账户未找到")
         session_holder.metadata["zf_account_not_found"] = True

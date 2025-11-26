@@ -5,8 +5,6 @@ from typing import Tuple, Literal, TypeVar, Union
 
 from pydantic import BaseModel
 
-from xtu_ems.qz_ems.config import classroom_prefix_category
-
 T = TypeVar('T')
 
 
@@ -146,22 +144,22 @@ class ScoreBoard(BaseModel):
     gpa: str = '0'
     """总绩点"""
 
-    cet4: str = None
+    cet4: str = "710"
     """CET4 成绩"""
-    cet6: str = None
+    cet6: str = "710"
     """CET6 成绩"""
 
 
 class RankInfo(BaseModel):
     """排名信息"""
 
-    average_score: str = ""
+    average_score: str = "100"
     """平均分"""
-    gpa: str = ""
+    gpa: str = "4.0"
     """成绩"""
-    class_rank: int = -1
+    class_rank: int = 1
     """班级排名"""
-    major_rank: int = -1
+    major_rank: int = 1
     """专业排名"""
     terms: list[str] = ""
     """学期"""
@@ -206,6 +204,27 @@ class CategoryClassroomBoard(BaseModel):
     """日期"""
 
 
+classroom_prefix_category = {
+    "北山": "北山阶梯",
+    "尚美楼-": "尚美楼",
+    "尚美楼": "尚美楼",
+    "土木楼": "土木楼",
+    "图书馆南": "图书馆南",
+    "机械楼": "机械楼",
+    "南山": "南山阶梯",
+    "外语楼-": "外语楼",
+    "文科楼-": "文科楼",
+    "兴教楼A": "兴教楼A",
+    "兴教楼B": "兴教楼B",
+    "兴教楼C": "兴教楼C",
+    "行远楼-": "行远楼",
+    "一教楼-": "一教楼",
+    "逸夫楼-": "逸夫楼",
+    "逸夫楼": "逸夫楼",
+    "兴湘学院三教-": "兴湘学院三教",
+    "经管楼": "经管楼",
+    "第三教学楼-": "第三教学楼",
+}
 class ClassroomBoard(BaseModel):
     """教室信息"""
 
