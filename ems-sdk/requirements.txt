@@ -1,0 +1,4 @@
+-r requirements.ems.txt
+fastapi~=0.115.2
+uvicorn
+colorlog

@@ -1,0 +1,29 @@
+services:
+  #  主服务
+  api:
+    build: ./ems-sdk
+    environment:
+      - TZ=Asia/Shanghai
+      - ENV=prod
+    volumes:
+      - /etc/localtime:/etc/localtime:ro  # 设置时区
+      - /etc/timezone:/etc/timezone:ro # 设置时区
+      - api-logs:/logs
+  #  代理缓存服务
+  proxy:
+    build: ./cached_proxy
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Asia/Shanghai
+      - SPIDER_URL=http://api:8080
+    volumes:
+      - proxy_files:/app/_data
+      - /etc/localtime:/etc/localtime:ro  # 设置时区
+      - /etc/timezone:/etc/timezone:ro # 设置时区
+  #  反馈服务
+
+volumes:
+  api-logs:
+  proxy_files:
+

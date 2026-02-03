@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "standard": {
+      "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "color": {
+      "()": "colorlog.ColoredFormatter",
+      "format": "%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+      "log_colors": {
+        "DEBUG": "cyan",
+        "INFO": "green",
+        "WARNING": "yellow",
+        "ERROR": "red",
+        "CRITICAL": "bold_red"
+      }
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "color",
+      "level": "INFO"
+    },
+    "file_fastapi": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "formatter": "standard",
+      "level": "INFO",
+      "filename": "../logs/fastapi.log",
+      "when": "midnight",
+      "backupCount": 60
+    },
+    "file_crawler": {
+      "class": "logging.handlers.TimedRotatingFileHandler",
+      "formatter": "standard",
+      "level": "DEBUG",
+      "filename": "../logs/crawler.log",
+      "when": "midnight",
+      "backupCount": 60
+    }
+  },
+  "loggers": {
+    "uvicorn": {
+      "handlers": [
+        "console",
+        "file_fastapi"
+      ],
+      "level": "INFO",
+      "propagate": false
+    },
+    "xtu-ems": {
+      "handlers": [
+        "console",
+        "file_crawler"
+      ],
+      "level": "DEBUG",
+      "propagate": false
+    }
+  },
+  "root": {
+    "handlers": [
+      "console"
+    ],
+    "level": "DEBUG"
+  }
+}
