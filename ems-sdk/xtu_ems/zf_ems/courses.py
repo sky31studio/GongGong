@@ -49,6 +49,20 @@ def parse_course_time(courses_list) -> CourseList:
         courses.append(course_info)
     return CourseList(courses=courses)
 
+def normalize_term(term: int) -> int:
+    """
+    将用户输入的学期编号转换为 EMS 接口使用的学期编码。
+
+    :param term: 学期编号，可为逻辑编号 1/2 或 EMS 编码 3/12。
+    :type term: int
+    :return: 与 EMS 接口兼容的学期编码。
+    :rtype: int
+    """
+    if term == 1:
+        return 3
+    if term == 2:
+        return 12
+    return term
 
 async def get_courses(session: HttpSessionHolder, year=None, term=None) -> CourseList:
     """
@@ -65,10 +79,11 @@ async def get_courses(session: HttpSessionHolder, year=None, term=None) -> Cours
     if year is None or term is None:
         year = get_term_year(date)
         term = get_term_id(date)
+    payload_term = normalize_term(term)  
     async with session.to_aiohttp_session() as http_session:
         payload = {
             "xnm": year,
-            "xqm": term,
+            "xqm": payload_term,
             "kzlx": "ck",
         }
         async with http_session.post(
